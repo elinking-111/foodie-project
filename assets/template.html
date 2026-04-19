@@ -431,9 +431,9 @@ body{
 </div>
 
 <div class="results-info">
-  <div class="results-count">找到 <span id="resultCount">0</span> 个地方</div>
+  <div class="results-count"><span id="resultPrefix">找到</span> <span id="resultCount">0</span> <span id="resultSuffix">个地方</span></div>
   <div style="display:flex;gap:6px;align-items:center">
-    <button class="map-toggle-btn" id="mapToggleBtn" onclick="toggleMap()">地图</button>
+    <button class="map-toggle-btn" id="mapToggleBtn" onclick="toggleMap()"><span id="mapToggleLabel">地图</span></button>
     <button class="filter-btn area-btn status-btn" data-status="all" onclick="setStatusFilter('all')">全部</button>
     <button class="filter-btn area-btn status-btn" data-status="visited" onclick="setStatusFilter('visited')">已去过</button>
     <button class="filter-btn area-btn status-btn" data-status="unvisited" onclick="setStatusFilter('unvisited')">想去</button>
@@ -444,16 +444,16 @@ body{
 <div id="mapContainer">
   <div id="map"></div>
   <div class="map-jump">
-    <button class="map-jump-btn" onclick="mapJump('beijing')">北京</button>
-    <button class="map-jump-btn" onclick="mapJump('china')">中国</button>
-    <button class="map-jump-btn" onclick="mapJump('world')">全球</button>
+    <button class="map-jump-btn" data-jump="beijing" onclick="mapJump('beijing')">北京</button>
+    <button class="map-jump-btn" data-jump="china" onclick="mapJump('china')">中国</button>
+    <button class="map-jump-btn" data-jump="world" onclick="mapJump('world')">全球</button>
   </div>
 </div>
 <div class="grid" id="grid"></div>
 
 <div class="footer">
-  EAT &middot; DRINK &middot; EXPLORE &middot; TRAVEL &mdash; Last updated April 2026
-  <br><button class="btn-export" onclick="exportData()" style="margin-top:12px">导出数据 (data.js)</button>
+  <span id="footerText">EAT &middot; DRINK &middot; EXPLORE &middot; TRAVEL</span>
+  <br><button class="btn-export" onclick="exportData()" style="margin-top:12px" id="exportBtn">导出数据 (data.js)</button>
 </div>
 
 <button class="fab" onclick="openModal()" id="fabBtn" title="添加新地点" style="display:none">+</button>
@@ -463,48 +463,48 @@ body{
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="modalTitle">添加新地点</div>
+      <div class="modal-title" id="modalTitle"></div>
       <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
     <form class="modal-form" id="modalForm" onsubmit="event.preventDefault();saveModal()">
       <div class="form-group">
-        <label class="form-label">名称 *</label>
+        <label class="form-label" id="labelName">名称 *</label>
         <input class="form-input" id="fName" required placeholder="例：蓝瓶咖啡" minlength="1">
       </div>
       <div class="form-group">
-        <label class="form-label">英文名</label>
+        <label class="form-label" id="labelNameEn">英文名</label>
         <input class="form-input" id="fNameEn" placeholder="例：Blue Bottle Coffee">
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">分类 *</label>
+          <label class="form-label" id="labelCat">分类 *</label>
           <select class="form-select" id="fCat" required></select>
         </div>
         <div class="form-group">
-          <label class="form-label">地区 *</label>
+          <label class="form-label" id="labelRegion">地区 *</label>
           <select class="form-select" id="fRegion" onchange="updateAreaList()"></select>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">区域</label>
+        <label class="form-label" id="labelArea">区域</label>
         <input class="form-input" id="fArea" list="areaList" placeholder="例：三里屯/工体">
         <datalist id="areaList"></datalist>
       </div>
       <div class="form-group">
-        <label class="form-label">描述/特色</label>
+        <label class="form-label" id="labelDesc">描述/特色</label>
         <input class="form-input" id="fDesc" placeholder="例：露台很美，适合拍照">
       </div>
       <div class="form-group">
-        <label class="form-label">标签（逗号分隔）</label>
+        <label class="form-label" id="labelTags">标签（逗号分隔）</label>
         <input class="form-input" id="fTags" placeholder="例：brunch, 四合院, 日落">
       </div>
       <div class="form-group">
-        <label class="form-check"><input type="checkbox" id="fVisited"> 已去过</label>
+        <label class="form-check"><input type="checkbox" id="fVisited"> <span id="labelVisited">已去过</span></label>
       </div>
     </form>
     <div class="modal-actions">
-      <button class="btn btn-cancel" type="button" onclick="closeModal()">取消</button>
-      <button class="btn btn-save" type="button" onclick="saveModal()">保存</button>
+      <button class="btn btn-cancel" type="button" onclick="closeModal()" id="btnCancel">取消</button>
+      <button class="btn btn-save" type="button" onclick="saveModal()" id="btnSave">保存</button>
     </div>
   </div>
 </div>
@@ -526,7 +526,27 @@ const REGIONS = [
   {key:"中国",label:"中国其他城市",emoji:"🇨🇳"},{key:"海外",label:"海外",emoji:"✈️"},
 ];
 
-const READONLY = true;
+const PRIMARY_REGION = '北京';
+const ALL_LABEL = '全部';
+const OTHER_LABEL = '其他';
+const SORT_LOCALE = 'zh';
+const MAP_DEFAULT = {center:[39.9042,116.4074],zoom:11};
+const MAP_JUMPS_DATA = [
+  {key:'beijing',label:'北京',center:[39.93,116.40],zoom:12},
+  {key:'china',label:'中国',center:[35,105],zoom:4},
+  {key:'world',label:'全球',center:[30,50],zoom:3}
+];
+const UI = {
+  recommend:'推荐',manual:'手动',
+  markVisited:'标记为已去过',markUnvisited:'标记为未去过',
+  emptyText:'没有找到匹配的地方，试试其他关键词？',
+  alertNoName:'请输入名称',
+  confirmDeletePrefix:'确定要删除「',confirmDeleteSuffix:'」吗？',
+  editPlace:'编辑地点',addPlace:'添加新地点',
+  popupStar:'推荐',
+  editTooltip:'编辑',deleteTooltip:'删除',
+};
+const READONLY = false;
 
 const CAT_EMOJI={}, CAT_LABEL={};
 CATEGORIES.forEach(c=>{ if(c.key!=='all'){CAT_EMOJI[c.key]=c.emoji; CAT_LABEL[c.key]=c.label;} });
@@ -583,36 +603,36 @@ const AREA_TO_DISTRICT={};
 Object.entries(DISTRICT_MAP).forEach(([dist,subs])=>subs.forEach(s=>AREA_TO_DISTRICT[s]=dist));
 
 // ── Filter state ──
-let activeRegion="all", activeCats=new Set(["all"]), activeDistrict="全部", activeArea="全部", activeStatus="all", searchQuery="";
+let activeRegion="all", activeCats=new Set(["all"]), activeDistrict=ALL_LABEL, activeArea=ALL_LABEL, activeStatus="all", searchQuery="";
 
 function getDistrictsForRegion(region){
-  if(region!=='北京') return [];
+  if(region!==PRIMARY_REGION) return [];
   const set=new Set();
   getCachedMerged().forEach(d=>{
-    if(d.region!=='北京') return;
+    if(d.region!==PRIMARY_REGION) return;
     const dist=AREA_TO_DISTRICT[d.area];
     if(dist) set.add(dist);
   });
-  return ['全部',...Array.from(set).sort((a,b)=>a.localeCompare(b,'zh'))];
+  return [ALL_LABEL,...Array.from(set).sort((a,b)=>a.localeCompare(b,SORT_LOCALE))];
 }
 function getSubAreasForDistrict(district){
-  if(district==='全部') return [];
+  if(district===ALL_LABEL) return [];
   const subs=DISTRICT_MAP[district]||[];
   const set=new Set();
   getCachedMerged().forEach(d=>{
-    if(d.region!=='北京') return;
+    if(d.region!==PRIMARY_REGION) return;
     if(subs.includes(d.area)) set.add(d.area);
   });
   // Only show sub-area buttons if there are 2+ distinct sub-areas
   if(set.size<=1) return [];
-  return ['全部',...Array.from(set).sort((a,b)=>a.localeCompare(b,'zh'))];
+  return [ALL_LABEL,...Array.from(set).sort((a,b)=>a.localeCompare(b,SORT_LOCALE))];
 }
 function getAreasForRegion(region){
   // For non-Beijing regions, flat area list
-  if(region==='all'||region!=='北京'){
+  if(region==='all'||region!==PRIMARY_REGION){
     const set=new Set();
     getCachedMerged().forEach(d=>{ if(region==='all'||d.region===region){ if(d.area) set.add(d.area); } });
-    return ["全部",...Array.from(set).sort((a,b)=>{ if(a==="其他")return 1; if(b==="其他")return -1; return a.localeCompare(b,'zh'); })];
+    return [ALL_LABEL,...Array.from(set).sort((a,b)=>{ if(a===OTHER_LABEL)return 1; if(b===OTHER_LABEL)return -1; return a.localeCompare(b,SORT_LOCALE); })];
   }
   return [];
 }
@@ -635,7 +655,7 @@ function init(){
     btn.className='filter-btn region-btn'+(r.key==='all'?' active':'');
     btn.dataset.region=r.key;
     btn.innerHTML='<span class="emoji">'+r.emoji+'</span>'+r.label;
-    btn.onclick=()=>{ activeRegion=r.key; activeDistrict="全部"; activeArea="全部"; buildDistrictFilters(); updateFilters(); render(); };
+    btn.onclick=()=>{ activeRegion=r.key; activeDistrict=ALL_LABEL; activeArea=ALL_LABEL; buildDistrictFilters(); updateFilters(); render(); };
     regionWrap.appendChild(btn);
   });
   // Category filters
@@ -659,9 +679,10 @@ function init(){
     catWrap.appendChild(btn);
   });
   buildDistrictFilters();
-  // Hide edit UI in readonly mode
+  // Show FAB only when not readonly
   if(!READONLY) document.getElementById('fabBtn').style.display='';
-  if(READONLY){ const eb=document.querySelector('.btn-export'); if(eb) eb.style.display='none'; }
+  // Hide export button in readonly mode
+  if(READONLY) document.getElementById('exportBtn').style.display='none';
   // Init status filter default
   document.querySelectorAll('.status-btn').forEach(b=>{ b.classList.toggle('active',b.dataset.status==='all'); });
   // Search
@@ -676,20 +697,20 @@ function init(){
 
 function buildDistrictFilters(){
   const w=document.getElementById('districtFilters'); w.innerHTML='';
-  if(activeRegion!=='北京'){ w.style.display='none'; buildAreaFilters(); return; }
+  if(activeRegion!==PRIMARY_REGION){ w.style.display='none'; buildAreaFilters(); return; }
   w.style.display='';
-  getDistrictsForRegion('北京').forEach(d=>{
+  getDistrictsForRegion(PRIMARY_REGION).forEach(d=>{
     const btn=document.createElement('button');
     btn.className='filter-btn district-btn'+(d===activeDistrict?' active':'');
     btn.dataset.district=d; btn.textContent=d;
-    btn.onclick=()=>{ activeDistrict=d; activeArea='全部'; buildAreaFilters(); updateFilters(); render(); };
+    btn.onclick=()=>{ activeDistrict=d; activeArea=ALL_LABEL; buildAreaFilters(); updateFilters(); render(); };
     w.appendChild(btn);
   });
   buildAreaFilters();
 }
 function buildAreaFilters(){
   const w=document.getElementById('areaFilters'); w.innerHTML='';
-  if(activeRegion==='北京'){
+  if(activeRegion===PRIMARY_REGION){
     // Show sub-areas for active district
     const subs=getSubAreasForDistrict(activeDistrict);
     if(!subs.length){ w.style.display='none'; return; }
@@ -744,11 +765,11 @@ function render(){
     if(activeRegion!=='all' && d.region!==activeRegion) return false;
     if(!activeCats.has('all') && !activeCats.has(d.cat)) return false;
     // Two-level: district then sub-area (Beijing only)
-    if(activeRegion==='北京' && activeDistrict!=='全部'){
+    if(activeRegion===PRIMARY_REGION && activeDistrict!==ALL_LABEL){
       const subs=DISTRICT_MAP[activeDistrict]||[];
       if(!subs.includes(d.area)) return false;
-      if(activeArea!=='全部' && d.area!==activeArea) return false;
-    } else if(activeArea!=='全部' && d.area!==activeArea) return false;
+      if(activeArea!==ALL_LABEL && d.area!==activeArea) return false;
+    } else if(activeArea!==ALL_LABEL && d.area!==activeArea) return false;
     if(activeStatus==='visited' && !getState(d).visited) return false;
     if(activeStatus==='unvisited' && getState(d).visited) return false;
     if(searchQuery){
@@ -767,7 +788,7 @@ function render(){
 
   document.getElementById('resultCount').textContent=filtered.length;
   if(!filtered.length){
-    grid.innerHTML='<div class="empty"><div class="empty-emoji">&#x1F50D;</div><div class="empty-text">没有找到匹配的地方，试试其他关键词？</div></div>';
+    grid.innerHTML='<div class="empty"><div class="empty-emoji">&#x1F50D;</div><div class="empty-text">'+UI.emptyText+'</div></div>';
     return;
   }
 
@@ -782,8 +803,8 @@ function render(){
     // Top-right: visited check + note star
     html+='<div class="card-top-right">';
     const isStarred=getState(d).star!==undefined?getState(d).star:d.star;
-    html+=`<button class="card-recommend${isStarred?' active':''}" onclick="toggleStar(${idx})">推荐</button>`;
-    html+=`<button class="card-visited${visited?' checked':''}" onclick="toggleVisited(this,${idx})" title="${visited?'标记为未去过':'标记为已去过'}">&#10003;</button>`;
+    html+=`<button class="card-recommend${isStarred?' active':''}" onclick="toggleStar(${idx})">${UI.recommend}</button>`;
+    html+=`<button class="card-visited${visited?' checked':''}" onclick="toggleVisited(this,${idx})" title="${visited?UI.markUnvisited:UI.markVisited}">&#10003;</button>`;
     html+='</div>';
     // Header
     html+='<div class="card-header">';
@@ -796,15 +817,15 @@ function render(){
     html+='<div class="card-tags">';
     html+=`<span class="tag tag-category">${catLabel}</span>`;
     if(activeRegion==='all') html+=`<span class="tag tag-area">${esc(d.region)}</span>`;
-    if(d.area && d.area!=='其他') html+=`<span class="tag tag-area">${esc(d.area)}</span>`;
+    if(d.area && d.area!==OTHER_LABEL) html+=`<span class="tag tag-area">${esc(d.area)}</span>`;
     if(d.desc && d.desc!==d.area) html+=`<span class="tag tag-feature">${esc(d.desc)}</span>`;
     (d.tags||[]).forEach(t=>{ html+=`<span class="tag tag-feature">${esc(t)}</span>`; });
     html+='</div>';
     if(!READONLY){
     html+='<div class="card-actions">';
-    if(d._source==='user') html+='<span class="card-user-badge">手动</span>';
-    html+=`<button class="card-action-btn" onclick="openEditModal(${idx})" title="编辑">&#9998;</button>`;
-    html+=`<button class="card-action-btn card-action-delete" onclick="deleteItem(${idx})" title="删除">&times;</button>`;
+    if(d._source==='user') html+='<span class="card-user-badge">'+UI.manual+'</span>';
+    html+=`<button class="card-action-btn" onclick="openEditModal(${idx})" title="${UI.editTooltip}">&#9998;</button>`;
+    html+=`<button class="card-action-btn card-action-delete" onclick="deleteItem(${idx})" title="${UI.deleteTooltip}">&times;</button>`;
     html+='</div>';
     }
     html+='</div>';
@@ -857,7 +878,7 @@ function initModalSelects(){
 window.updateAreaList=function(){
   const region=document.getElementById('fRegion').value;
   const dl=document.getElementById('areaList'); dl.innerHTML='';
-  const areas=getAreasForRegion(region).filter(a=>a!=='全部');
+  const areas=getAreasForRegion(region).filter(a=>a!==ALL_LABEL);
   areas.forEach(a=>{ const opt=document.createElement('option'); opt.value=a; dl.appendChild(opt); });
 };
 
@@ -868,11 +889,11 @@ window.openModal=function(item){
   if(item){
     // Edit mode
     _editMode=item._source==='user'?{source:'user',id:item._id}:{source:'sync',key:itemKey(item)};
-    document.getElementById('modalTitle').textContent='编辑地点';
+    document.getElementById('modalTitle').textContent=UI.editPlace;
     document.getElementById('fName').value=item.name||'';
     document.getElementById('fNameEn').value=item.nameEn||'';
     document.getElementById('fCat').value=item.cat||'restaurant';
-    document.getElementById('fRegion').value=item.region||'北京';
+    document.getElementById('fRegion').value=item.region||PRIMARY_REGION;
     updateAreaList();
     document.getElementById('fArea').value=item.area||'';
     document.getElementById('fDesc').value=item.desc||'';
@@ -881,12 +902,12 @@ window.openModal=function(item){
   } else {
     // Add mode
     _editMode=null;
-    document.getElementById('modalTitle').textContent='添加新地点';
+    document.getElementById('modalTitle').textContent=UI.addPlace;
     // Default to current active region if set
     if(activeRegion!=='all') document.getElementById('fRegion').value=activeRegion;
     if(!activeCats.has('all') && activeCats.size===1) document.getElementById('fCat').value=activeCats.values().next().value;
     updateAreaList();
-    if(activeArea!=='全部') document.getElementById('fArea').value=activeArea;
+    if(activeArea!==ALL_LABEL) document.getElementById('fArea').value=activeArea;
   }
   document.getElementById('modalOverlay').classList.add('show');
   document.getElementById('fName').focus();
@@ -904,13 +925,13 @@ window.openEditModal=function(idx){
 
 window.saveModal=function(){
   const name=document.getElementById('fName').value.trim();
-  if(!name){alert('请输入名称');return;}
+  if(!name){alert(UI.alertNoName);return;}
   const item={
     name:name,
     nameEn:document.getElementById('fNameEn').value.trim(),
     cat:document.getElementById('fCat').value,
     region:document.getElementById('fRegion').value,
-    area:document.getElementById('fArea').value.trim()||'其他',
+    area:document.getElementById('fArea').value.trim()||OTHER_LABEL,
     desc:document.getElementById('fDesc').value.trim(),
     star:false,
     visited:document.getElementById('fVisited').checked,
@@ -956,7 +977,7 @@ window.saveModal=function(){
 
 window.deleteItem=function(idx){
   const d=window._filtered[idx];
-  if(!confirm('确定要删除「'+d.name+'」吗？')) return;
+  if(!confirm(UI.confirmDeletePrefix+d.name+UI.confirmDeleteSuffix)) return;
   const ud=loadUserData();
   if(d._source==='user'&&d._id){
     ud.added=ud.added.filter(a=>a._id!==d._id);
@@ -1038,11 +1059,11 @@ function getFilteredItems(){
   return getCachedMerged().filter(d=>{
     if(activeRegion!=='all' && d.region!==activeRegion) return false;
     if(!activeCats.has('all') && !activeCats.has(d.cat)) return false;
-    if(activeRegion==='北京' && activeDistrict!=='全部'){
+    if(activeRegion===PRIMARY_REGION && activeDistrict!==ALL_LABEL){
       const subs=DISTRICT_MAP[activeDistrict]||[];
       if(!subs.includes(d.area)) return false;
-      if(activeArea!=='全部' && d.area!==activeArea) return false;
-    } else if(activeArea!=='全部' && d.area!==activeArea) return false;
+      if(activeArea!==ALL_LABEL && d.area!==activeArea) return false;
+    } else if(activeArea!==ALL_LABEL && d.area!==activeArea) return false;
     if(activeStatus==='visited' && !getState(d).visited) return false;
     if(activeStatus==='unvisited' && getState(d).visited) return false;
     if(searchQuery){
@@ -1069,7 +1090,7 @@ function renderMap(){
       zoomDelta:0.5,
       minZoom:2,
       maxZoom:18,
-    }).setView([39.9042,116.4074],11);
+    }).setView(MAP_DEFAULT.center,MAP_DEFAULT.zoom);
     // Zoom controls top-right
     L.control.zoom({position:'topright'}).addTo(mapInstance);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
@@ -1089,14 +1110,14 @@ function renderMap(){
     if(!coords) coords=AREA_COORDS[d.region] || REGION_CENTERS[d.region];
     if(!coords) return;
     // Add jitter so overlapping items spread out (less for overseas)
-    const jitter=d.region==='北京'?0.006:d.region==='中国'?0.15:0.3;
+    const jitter=d.region===PRIMARY_REGION?0.006:0.15;
     const lat=coords[0]+(Math.random()-0.5)*jitter;
     const lng=coords[1]+(Math.random()-0.5)*jitter;
     const color=catColors[d.cat]||'#C4573A';
     const isStarred=getState(d).star!==undefined?getState(d).star:d.star;
     const visited=getState(d).visited;
 
-    const size=d.region==='北京'?12:16;
+    const size=d.region===PRIMARY_REGION?12:16;
     const icon=L.divIcon({
       className:'',
       html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2px solid #FFF;box-shadow:0 2px 6px rgba(0,0,0,0.35);${visited?'':'opacity:0.6'}"></div>`,
@@ -1106,8 +1127,8 @@ function renderMap(){
     const popup=`<div class="map-popup">
       <div class="popup-name">${esc(d.name)}${d.nameEn?' <span style="font-weight:400;font-style:italic;font-size:12px">'+esc(d.nameEn)+'</span>':''}</div>
       <div class="popup-cat">${CAT_EMOJI[d.cat]||''} ${CAT_LABEL[d.cat]||''}</div>
-      ${d.area&&d.area!=='其他'?'<div class="popup-area">'+esc(d.region)+' · '+esc(d.area)+'</div>':'<div class="popup-area">'+esc(d.region)+'</div>'}
-      ${isStarred?'<div class="popup-star">推荐</div>':''}
+      ${d.area&&d.area!==OTHER_LABEL?'<div class="popup-area">'+esc(d.region)+' · '+esc(d.area)+'</div>':'<div class="popup-area">'+esc(d.region)+'</div>'}
+      ${isStarred?'<div class="popup-star">'+UI.popupStar+'</div>':''}
       ${d.desc?'<div class="popup-desc">'+esc(d.desc)+'</div>':''}
     </div>`;
     marker.bindPopup(popup,{maxWidth:240});
@@ -1129,12 +1150,12 @@ function renderMap(){
 
 window.mapJump=function(target){
   if(!mapInstance) return;
+  const mj=MAP_JUMPS_DATA.find(j=>j.key===target);
   document.querySelectorAll('.map-jump-btn').forEach(b=>{
-    b.classList.toggle('active',b.textContent.trim()==={beijing:'北京',china:'中国',world:'全球'}[target]);
+    const bj=MAP_JUMPS_DATA.find(j=>j.key===b.getAttribute('data-jump'));
+    b.classList.toggle('active',bj&&bj.key===target);
   });
-  if(target==='beijing') mapInstance.flyTo([39.93,116.40],12,{duration:0.8});
-  else if(target==='china') mapInstance.flyTo([35,105],4,{duration:0.8});
-  else mapInstance.flyTo([30,50],3,{duration:0.8});
+  if(mj) mapInstance.flyTo(mj.center,mj.zoom,{duration:0.8});
 };
 
 document.addEventListener('DOMContentLoaded',init);

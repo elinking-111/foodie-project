@@ -1,0 +1,29 @@
+{
+  "skill_name": "foodie-site",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我在手机备忘录里记了一堆北京和旅游的吃喝玩乐清单，帮我做成一个网站。网站叫「小王の探店日记」。这是我的笔记内容：\n\n## 北京吃的\n- [x] Voyage Coffee（南锣鼓巷，河边四合院咖啡）\n- [x] 藏善日本料理 🌟（亮马桥好运街，超赞寿司）\n- [ ] Soloist Coffee（安定门，独立咖啡馆）\n- [x] 利群烤鸭（前门，胡同里的老北京烤鸭）🌟\n- [ ] 面之游·拉面（前门西兴隆街，日式拉面）\n- [x] Oh By Fine（鼓楼，舒芙蕾和brunch）\n- [ ] 北平机器（白塔寺，四合院啤酒花园）\n\n## 北京玩的\n- [x] 模范书局诗空间 🌟（西单宣武门附近）\n- [ ] 金海湖（平谷，小瑞士）\n- [x] 鹿皮关徒步（密云）\n- [ ] 檀谷慢闪公园（门头沟，露营小摊）\n\n## 国内旅游\n- [ ] 平遥古城（山西）\n- [ ] 莫干山（浙江）\n- [x] 大理喜林苑 🌟\n\n## 海外\n- [ ] 多洛米蒂 Dolomites（意大利，草原湖水自然）\n- [ ] 格鲁吉亚\n- [ ] 济州岛（韩国）",
+      "expected_output": "A working website at a GitHub Pages URL with all 17 places parsed correctly, categories auto-detected (coffee, restaurant, culture, explore), filters working, map showing pins, visited/unvisited states correct, stars on the 3 starred items.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I have a list of my favorite spots in NYC and some travel destinations. Can you turn this into a website? Call it \"Alex's City Guide\". Here's my list:\n\nCOFFEE:\nDevocion - Williamsburg, amazing cold brew ★\nAbraco - East Village, tiny espresso bar, been there\nOscar's Coffee - Midtown, quick stop\n\nFOOD:\nXi'an Famous Foods - multiple locations, hand-pulled noodles (visited)\nPeter Luger - Williamsburg, classic steakhouse ★ (visited)\nLos Tacos No. 1 - Chelsea Market, best tacos\nSugar Fish - Flatiron, great omakase\n\nDRINKS:\nPlease Don't Tell - East Village, speakeasy (visited)\nDeath & Co - East Village, cocktails ★\n\nTRAVEL:\nKyoto - Japan, temples and gardens\nBarcelona - Spain, Gaudi + beaches\nReykjavik - Iceland, northern lights",
+      "expected_output": "A working English-language website with 12 places, categories correctly detected (coffee, restaurant, bar, explore), NYC areas parsed from neighborhood names, visited status from 'been there'/'visited' markers, stars from ★, map with NYC and world pins.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "帮我把这个文件里的内容做成一个美食地图网站吧，就叫「吃货地图」。\n\n这是内容，格式比较随意：\n\n上海探店\n喜茶LAB 来福士店 - 网红奶茶，人很多\n小杨生煎 - 生煎包！必吃 🌟\n外滩18号 Mr & Mrs Bund - 法餐，外滩夜景超美 ✅\n失重餐厅 - 陆家嘴，菜从轨道滑下来\nManner Coffee 南京东路 ✅\n\n成都\n小龙坎火锅 - 超辣但好吃 ✅ 🌟\n宽窄巷子 走走逛逛\n春熙路 太古里 购物\n\n日本\n一兰拉面 东京 ✅\n金阁寺 京都\n镰仓 灌篮高手取景地",
+      "expected_output": "A working website with 11 places across 3 regions (上海/成都/日本), freeform format parsed correctly without checklist markers, ✅ detected as visited, 🌟 as starred, categories guessed from context (restaurant default, coffee for Manner, culture for 金阁寺/宽窄巷子), map with Shanghai/Chengdu/Japan coordinates.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "我从小红书上复制了几篇探店笔记的内容，帮我做成一个网站吧，叫「吃在成都」。\n\n📍成都探店合集\n\n1. 马路边边麻辣烫 - 建设路，串串超级多，人均💰45，排队很长但值得！✅\n2. 小龙坎火锅（总店）- 春熙路，正宗成都火锅 🌟 ✅\n3. 方所书店 - 太古里，超美的地下书店，文艺打卡地\n4. 廖老妈蹄花 - 人民公园旁，24小时营业的老店 ✅\n5. 成都吃客 - 致民路，特色菜烤鱼片很绝 🌟\n6. % Arabica - 太古里旗舰店，拍照圣地 ☕\n7. 鹤鸣茶社 - 人民公园里面，喝茶看人超悠闲 ✅\n8. 大慈寺 - 太古里旁边，免费的千年古寺\n9. Line Friends Cafe - 春熙路，布朗熊主题咖啡 ☕\n10. 文殊院 - 地铁直达，素斋很好吃\n\n#成都美食 #探店 #成都旅游",
+      "expected_output": "A working website with 10 places, all in 成都 region, social media format parsed correctly (numbered list, 📍 as location marker, 💰 as price in desc, # as tags ignored for categorization), ✅ as visited (4 items), 🌟 as starred (2 items), categories: restaurant default for food, coffee for Arabica and Line Friends Cafe, culture for 方所书店/大慈寺/文殊院/鹤鸣茶社. Map centered on Chengdu.",
+      "files": []
+    }
+  ]
+}

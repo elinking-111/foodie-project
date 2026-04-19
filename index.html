@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>孔一一小众点评 | 吃喝玩乐指南</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FBF6F0;--card:#FFFFFF;--primary:#C4573A;--primary-light:#E8A390;
+  --accent:#D4956A;--sage:#5B7B6A;--sage-light:#E8F0EC;
+  --dark:#2A1F1A;--muted:#8C7B6B;--light-border:#EDE5DB;
+  --shadow:0 2px 12px rgba(42,31,26,0.06);
+  --shadow-hover:0 8px 30px rgba(42,31,26,0.12);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans','Noto Serif SC',sans-serif;
+  background:var(--bg);color:var(--dark);
+  min-height:100vh;overflow-x:hidden;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='60' height='60' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+}
+::selection{background:var(--primary-light);color:var(--dark)}
+
+/* Hero */
+.hero{
+  text-align:center;padding:60px 24px 40px;position:relative;
+  background:linear-gradient(180deg,#F5EDE4 0%,var(--bg) 100%);
+}
+.hero::before{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse at 30% 20%,rgba(196,87,58,0.06) 0%,transparent 50%),
+             radial-gradient(ellipse at 70% 60%,rgba(91,123,106,0.05) 0%,transparent 50%);
+  pointer-events:none;
+}
+.hero-badge{
+  display:inline-block;font-size:13px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:16px;font-weight:600;position:relative;
+}
+.hero h1{
+  font-family:'Noto Serif SC','Cormorant Garamond',serif;
+  font-size:clamp(2.4rem,6vw,3.8rem);font-weight:700;
+  line-height:1.2;margin-bottom:12px;position:relative;
+}
+.hero h1 .brush{
+  position:relative;display:inline-block;
+}
+.hero h1 .brush::after{
+  content:'';position:absolute;bottom:-4px;left:-4%;right:-4%;height:12px;
+  background:var(--primary);opacity:0.15;border-radius:4px;
+  transform:rotate(-1deg);z-index:-1;
+}
+.hero-sub{
+  font-family:'Cormorant Garamond',serif;font-size:1.15rem;
+  color:var(--muted);font-style:italic;letter-spacing:0.5px;
+}
+.hero-stats{
+  display:flex;justify-content:center;gap:32px;margin-top:28px;
+  flex-wrap:wrap;
+}
+.hero-stat{text-align:center}
+.hero-stat .num{
+  font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;
+  color:var(--primary);line-height:1;
+}
+.hero-stat .label{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:1px}
+
+/* Sticky bar */
+.sticky-bar{
+  position:sticky;top:0;z-index:500;background:var(--bg);
+  padding-top:12px;padding-bottom:4px;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='60' height='60' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  box-shadow:0 2px 8px rgba(42,31,26,0) ;transition:box-shadow 0.3s;
+}
+.sticky-bar.stuck{box-shadow:0 2px 12px rgba(42,31,26,0.08)}
+
+/* Search */
+.search-wrap{
+  max-width:560px;margin:0 auto 0;padding:0 24px;position:relative;
+}
+.search-wrap input{
+  width:100%;padding:14px 20px 14px 48px;border:2px solid var(--light-border);
+  border-radius:16px;font-size:15px;font-family:inherit;
+  background:var(--card);color:var(--dark);
+  transition:all 0.3s ease;outline:none;
+}
+.search-wrap input:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(196,87,58,0.08)}
+.search-wrap input::placeholder{color:#BBA99A}
+.search-icon{
+  position:absolute;left:40px;top:50%;transform:translateY(-50%);
+  color:var(--muted);pointer-events:none;font-size:18px;
+}
+
+/* Filters */
+.filters{
+  max-width:1200px;margin:8px auto 0;padding:0 24px;
+}
+.filter-section{margin-bottom:6px}
+.filter-label{
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;font-weight:600;
+}
+.filter-scroll{
+  display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+.filter-scroll::-webkit-scrollbar{display:none}
+.filter-btn{
+  flex-shrink:0;padding:8px 18px;border:1.5px solid var(--light-border);
+  border-radius:100px;font-size:13px;font-family:inherit;font-weight:500;
+  background:var(--card);color:var(--muted);cursor:pointer;
+  transition:all 0.25s ease;white-space:nowrap;
+}
+.filter-btn:hover{border-color:var(--accent);color:var(--dark)}
+.filter-btn.active{
+  background:#6B5D50;color:#FFF;border-color:#6B5D50;
+}
+.filter-btn .emoji{margin-right:4px}
+.region-btn{padding:9px 22px;font-size:14px;font-weight:600;letter-spacing:0.5px}
+.region-btn.active{background:#8C7B6B;color:#FFF;border-color:#8C7B6B}
+.district-btn{padding:7px 16px;font-size:13px;font-weight:600}
+.district-btn.active{background:#A0907E;color:#FFF;border-color:#A0907E}
+.area-btn{padding:6px 14px;font-size:12px}
+.area-btn.active{background:#B5A898;color:#FFF;border-color:#B5A898}
+
+/* Results info */
+.results-info{
+  max-width:1200px;margin:8px auto 8px;padding:0 24px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.results-count{font-size:13px;color:var(--muted)}
+.results-count span{font-weight:700;color:var(--primary)}
+
+/* Grid */
+.grid{
+  max-width:1200px;margin:0 auto;padding:0 24px 80px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:16px;
+}
+@media(max-width:680px){.grid{grid-template-columns:1fr;gap:12px}}
+
+/* Cards */
+.card{
+  background:var(--card);border-radius:16px;padding:20px;
+  border:1px solid var(--light-border);
+  transition:all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+  position:relative;cursor:default;
+  animation:fadeUp 0.4s ease both;
+}
+.card:hover{
+  transform:translateY(-3px);box-shadow:var(--shadow-hover);
+  border-color:transparent;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.card-emoji{
+  font-size:28px;line-height:1;flex-shrink:0;
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  border-radius:12px;background:var(--bg);
+}
+.card-title-wrap{flex:1;min-width:0}
+.card-name{
+  font-family:'Noto Serif SC',serif;font-size:16px;font-weight:600;
+  line-height:1.3;margin-bottom:3px;
+  overflow:hidden;text-overflow:ellipsis;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.card-name-en{font-size:12px;color:var(--muted);font-style:italic}
+.card-top-right{
+  position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:6px;
+}
+.card-visited{
+  width:26px;height:26px;border-radius:50%;border:2px solid var(--light-border);
+  background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:transparent;transition:all 0.25s ease;flex-shrink:0;
+}
+.card-visited:hover{border-color:var(--sage);color:var(--sage)}
+.card-visited.checked{
+  background:var(--sage);border-color:var(--sage);color:#FFF;
+}
+.card-recommend{
+  font-size:10px;font-weight:600;letter-spacing:0.5px;
+  background:var(--light-border);color:var(--muted);padding:2px 8px;border-radius:100px;
+  line-height:1.4;cursor:pointer;border:none;font-family:inherit;transition:all 0.2s ease;
+}
+.card-recommend:hover{background:#E8D5CB;color:var(--dark)}
+.card-recommend.active{background:var(--primary);color:#FFF}
+/* Map toggle */
+.map-toggle-btn{
+  padding:5px 14px;border:1.5px solid var(--light-border);border-radius:100px;font-size:12px;font-family:inherit;
+  cursor:pointer;background:var(--card);color:var(--muted);transition:all 0.2s;font-weight:500;
+}
+.map-toggle-btn:hover{border-color:var(--accent);color:var(--dark)}
+.map-toggle-btn.active{background:var(--sage);color:#FFF;border-color:var(--sage)}
+
+/* Map */
+#mapContainer{
+  max-width:1200px;margin:0 auto 20px;padding:0 24px;display:none;position:relative;
+}
+#map{
+  width:100%;height:70vh;border-radius:16px;overflow:hidden;
+  border:1px solid var(--light-border);box-shadow:var(--shadow);
+}
+.map-jump{
+  position:absolute;top:12px;left:40px;z-index:450;display:flex;gap:4px;
+  background:rgba(255,255,255,0.92);border-radius:10px;padding:4px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);backdrop-filter:blur(4px);
+}
+.map-jump-btn{
+  padding:5px 14px;border:none;border-radius:8px;font-size:12px;font-family:inherit;
+  cursor:pointer;background:transparent;color:var(--muted);transition:all 0.2s;font-weight:600;
+}
+.map-jump-btn:hover{background:var(--bg);color:var(--dark)}
+.map-jump-btn.active{background:var(--primary);color:#FFF}
+.map-popup .popup-name{font-family:'Noto Serif SC',serif;font-weight:600;font-size:14px;margin-bottom:4px}
+.map-popup .popup-cat{font-size:11px;color:var(--primary);margin-bottom:2px}
+.map-popup .popup-area{font-size:11px;color:var(--sage)}
+.map-popup .popup-desc{font-size:11px;color:var(--muted);margin-top:3px}
+.map-popup .popup-star{color:var(--primary);font-size:10px;font-weight:600}
+
+/* Card actions — small icons, bottom-right corner, same line as tags */
+/* Visited badge on card */
+.card.is-visited{border-left:3px solid var(--sage)}
+/* Status filter */
+.status-btn.active-visited{background:var(--sage);color:#FFF;border-color:var(--sage)}
+.status-btn.active-unvisited{background:var(--accent);color:#FFF;border-color:var(--accent)}
+.card-desc{
+  font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px;
+  overflow:hidden;text-overflow:ellipsis;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{
+  display:inline-block;padding:3px 10px;border-radius:100px;
+  font-size:11px;font-weight:500;letter-spacing:0.3px;
+}
+.tag-category{background:#FBF0EC;color:var(--primary)}
+.tag-area{background:var(--sage-light);color:var(--sage)}
+.tag-feature{background:#F5F0E8;color:var(--accent)}
+
+/* Category card colors */
+.card[data-cat="coffee"] .card-emoji{background:#FBF0EC}
+.card[data-cat="restaurant"] .card-emoji{background:#FFF5EC}
+.card[data-cat="bar"] .card-emoji{background:#F5ECF9}
+.card[data-cat="bakery"] .card-emoji{background:#FFF3F0}
+.card[data-cat="culture"] .card-emoji{background:#ECF3FB}
+.card[data-cat="explore"] .card-emoji{background:#E8F5EC}
+.card[data-cat="leisure"] .card-emoji{background:#F9ECF5}
+
+/* Section divider */
+.section-divider{
+  grid-column:1/-1;text-align:center;padding:20px 0 8px;
+  font-family:'Noto Serif SC',serif;font-size:18px;font-weight:600;
+  color:var(--dark);position:relative;
+}
+.section-divider::after{
+  content:'';display:block;width:40px;height:2px;
+  background:var(--primary);margin:8px auto 0;border-radius:2px;opacity:0.4;
+}
+
+/* Empty */
+.empty{
+  grid-column:1/-1;text-align:center;padding:60px 20px;
+}
+.empty-emoji{font-size:48px;margin-bottom:12px}
+.empty-text{font-size:15px;color:var(--muted)}
+
+/* Footer */
+.footer{
+  text-align:center;padding:40px 24px;
+  font-size:12px;color:var(--muted);letter-spacing:1px;
+}
+
+/* Scroll to top */
+.scroll-top{
+  position:fixed;bottom:24px;right:24px;width:44px;height:44px;
+  border-radius:50%;background:var(--dark);color:#FFF;border:none;
+  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:translateY(10px);transition:all 0.3s ease;
+  box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:100;
+}
+.scroll-top.show{opacity:1;transform:translateY(0)}
+.scroll-top:hover{background:var(--primary)}
+
+/* Card actions — small icons, bottom-right corner */
+.card-actions{
+  position:absolute;bottom:10px;right:12px;display:flex;gap:4px;
+  opacity:0;transition:opacity 0.2s ease;
+}
+.card:hover .card-actions{opacity:1}
+.card-action-btn{
+  background:var(--bg);border:none;border-radius:50%;
+  width:24px;height:24px;font-size:11px;cursor:pointer;transition:all 0.2s;
+  color:var(--muted);display:flex;align-items:center;justify-content:center;padding:0;
+}
+.card-action-btn:hover{background:var(--light-border);color:var(--dark)}
+.card-action-delete:hover{color:#c44;background:#fef5f5}
+.card-user-badge{
+  font-size:9px;font-weight:600;letter-spacing:0.3px;
+  background:#EDE5DB;color:var(--muted);padding:2px 6px;border-radius:100px;line-height:1.4;
+}
+
+/* FAB — add button */
+.fab{
+  position:fixed;bottom:76px;right:24px;width:48px;height:48px;
+  border-radius:50%;background:var(--primary);color:#FFF;border:none;
+  font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(196,87,58,0.3);z-index:100;
+  transition:all 0.3s ease;
+}
+.fab:hover{background:#B34530;transform:scale(1.08)}
+
+/* Modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(42,31,26,0.4);backdrop-filter:blur(4px);
+  z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--card);border-radius:20px;width:100%;max-width:480px;
+  max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(42,31,26,0.2);
+  animation:modalIn 0.3s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(0.97)}to{opacity:1;transform:none}}
+.modal-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:24px 24px 0;
+}
+.modal-title{
+  font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;
+}
+.modal-close{
+  width:32px;height:32px;border-radius:50%;border:none;background:var(--bg);
+  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);transition:all 0.2s;
+}
+.modal-close:hover{background:var(--light-border);color:var(--dark)}
+.modal-form{padding:20px 24px 24px}
+.form-group{margin-bottom:14px}
+.form-label{
+  display:block;font-size:12px;font-weight:600;color:var(--muted);
+  margin-bottom:5px;letter-spacing:0.5px;
+}
+.form-input,.form-select{
+  width:100%;padding:10px 14px;border:1.5px solid var(--light-border);
+  border-radius:10px;font-size:14px;font-family:inherit;color:var(--dark);
+  background:var(--card);outline:none;transition:border-color 0.2s;
+}
+.form-input:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(196,87,58,0.06)}
+.form-input::placeholder{color:#BBA99A}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-check{
+  display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--dark);
+}
+.form-check input[type="checkbox"]{
+  width:18px;height:18px;accent-color:var(--primary);cursor:pointer;
+}
+.modal-actions{
+  display:flex;gap:10px;justify-content:flex-end;padding:0 24px 24px;
+}
+.btn{
+  padding:10px 24px;border-radius:10px;font-size:14px;font-family:inherit;
+  font-weight:600;cursor:pointer;transition:all 0.2s;border:none;
+}
+.btn-cancel{background:var(--bg);color:var(--muted);border:1.5px solid var(--light-border)}
+.btn-cancel:hover{background:var(--light-border);color:var(--dark)}
+.btn-save{background:var(--primary);color:#FFF}
+.btn-save:hover{background:#B34530}
+.btn-danger{background:#FFF;color:#c44;border:1.5px solid #c44}
+.btn-danger:hover{background:#c44;color:#FFF}
+.btn-export{
+  background:var(--bg);color:var(--muted);border:1.5px solid var(--light-border);
+  padding:8px 16px;border-radius:10px;font-size:12px;font-family:inherit;
+  cursor:pointer;transition:all 0.2s;
+}
+.btn-export:hover{background:var(--light-border);color:var(--dark)}
+
+@media(max-width:480px){
+  .hero{padding:40px 16px 28px}
+  .hero h1{font-size:2rem}
+  .filters,.results-info,.grid{padding-left:16px;padding-right:16px}
+  .search-wrap{padding:0 16px}
+  .search-icon{left:32px}
+  .card{padding:16px}
+  .modal{max-width:100%;border-radius:16px}
+  .form-row{grid-template-columns:1fr}
+  .fab{bottom:68px;right:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">孔一一小众点评</div>
+  <h1><span class="brush">吃喝玩乐指南</span></h1>
+  <p class="hero-sub">Eat · Drink · Explore · Travel</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num" id="statTotal">0</div><div class="label">TOTAL</div></div>
+    <div class="hero-stat"><div class="num" id="statEat">0</div><div class="label">BEIJING</div></div>
+    <div class="hero-stat"><div class="num" id="statPlay">0</div><div class="label">CHINA</div></div>
+    <div class="hero-stat"><div class="num" id="statTravel">0</div><div class="label">OVERSEAS</div></div>
+  </div>
+</div>
+
+<div class="sticky-bar" id="stickyBar">
+<div class="search-wrap">
+  <span class="search-icon">&#x1F50D;</span>
+  <input type="text" id="searchInput" placeholder="搜索店名、区域、关键词...">
+</div>
+
+<div class="filters">
+  <div class="filter-section">
+    <div class="filter-scroll" id="regionFilters"></div>
+  </div>
+  <div class="filter-section">
+    <div class="filter-scroll" id="catFilters"></div>
+  </div>
+  <div class="filter-section">
+    <div class="filter-scroll" id="districtFilters"></div>
+  </div>
+  <div class="filter-section">
+    <div class="filter-scroll" id="areaFilters"></div>
+  </div>
+</div>
+
+<div class="results-info">
+  <div class="results-count">找到 <span id="resultCount">0</span> 个地方</div>
+  <div style="display:flex;gap:6px;align-items:center">
+    <button class="map-toggle-btn" id="mapToggleBtn" onclick="toggleMap()">地图</button>
+    <button class="filter-btn area-btn status-btn" data-status="all" onclick="setStatusFilter('all')">全部</button>
+    <button class="filter-btn area-btn status-btn" data-status="visited" onclick="setStatusFilter('visited')">已去过</button>
+    <button class="filter-btn area-btn status-btn" data-status="unvisited" onclick="setStatusFilter('unvisited')">想去</button>
+  </div>
+</div>
+</div><!-- end sticky-bar -->
+
+<div id="mapContainer">
+  <div id="map"></div>
+  <div class="map-jump">
+    <button class="map-jump-btn" onclick="mapJump('beijing')">北京</button>
+    <button class="map-jump-btn" onclick="mapJump('china')">中国</button>
+    <button class="map-jump-btn" onclick="mapJump('world')">全球</button>
+  </div>
+</div>
+<div class="grid" id="grid"></div>
+
+<div class="footer">
+  EAT &middot; DRINK &middot; EXPLORE &middot; TRAVEL &mdash; Last updated April 2026
+  <br><button class="btn-export" onclick="exportData()" style="margin-top:12px">导出数据 (data.js)</button>
+</div>
+
+<button class="fab" onclick="openModal()" title="添加新地点">+</button>
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
+
+<!-- CRUD Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">添加新地点</div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <form class="modal-form" id="modalForm" onsubmit="event.preventDefault();saveModal()">
+      <div class="form-group">
+        <label class="form-label">名称 *</label>
+        <input class="form-input" id="fName" required placeholder="例：蓝瓶咖啡" minlength="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">英文名</label>
+        <input class="form-input" id="fNameEn" placeholder="例：Blue Bottle Coffee">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">分类 *</label>
+          <select class="form-select" id="fCat" required></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">地区 *</label>
+          <select class="form-select" id="fRegion" onchange="updateAreaList()"></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">区域</label>
+        <input class="form-input" id="fArea" list="areaList" placeholder="例：三里屯/工体">
+        <datalist id="areaList"></datalist>
+      </div>
+      <div class="form-group">
+        <label class="form-label">描述/特色</label>
+        <input class="form-input" id="fDesc" placeholder="例：露台很美，适合拍照">
+      </div>
+      <div class="form-group">
+        <label class="form-label">标签（逗号分隔）</label>
+        <input class="form-input" id="fTags" placeholder="例：brunch, 四合院, 日落">
+      </div>
+      <div class="form-group">
+        <label class="form-check"><input type="checkbox" id="fVisited"> 已去过</label>
+      </div>
+    </form>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" type="button" onclick="closeModal()">取消</button>
+      <button class="btn btn-save" type="button" onclick="saveModal()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+// DATA is loaded from external data.js (auto-generated by sync.sh)
+// User state (visited, rating) is stored in localStorage — survives sync updates
+
+const CATEGORIES = [
+  {key:"all",label:"全部",emoji:""},
+  {key:"coffee",label:"咖啡",emoji:"☕"},{key:"restaurant",label:"餐厅",emoji:"🍜"},
+  {key:"bar",label:"酒吧",emoji:"🍷"},{key:"bakery",label:"烘焙甜点",emoji:"🧁"},
+  {key:"culture",label:"文化景点",emoji:"🏛️"},{key:"explore",label:"探索出行",emoji:"🌿"},
+  {key:"leisure",label:"休闲娱乐",emoji:"🎵"},
+];
+const REGIONS = [
+  {key:"all",label:"全部地区",emoji:"🌏"},{key:"北京",label:"北京",emoji:"🏙️"},
+  {key:"中国",label:"中国其他城市",emoji:"🇨🇳"},{key:"海外",label:"海外",emoji:"✈️"},
+];
+
+const CAT_EMOJI={}, CAT_LABEL={};
+CATEGORIES.forEach(c=>{ if(c.key!=='all'){CAT_EMOJI[c.key]=c.emoji; CAT_LABEL[c.key]=c.label;} });
+
+// ── User state (localStorage) ──
+const LS_KEY = 'foodie_user_state';
+let userState = {};
+function loadState(){ try{ userState=JSON.parse(localStorage.getItem(LS_KEY))||{}; }catch(e){ userState={}; } }
+function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(userState)); }
+function itemKey(d){ return (d.name+'|'+d.region+'|'+d.area).replace(/\s/g,''); }
+function getState(d){ const s=userState[itemKey(d)]||{}; if(d.visited && s.visited===undefined) s.visited=true; return s; }
+function setState(d,patch){ const k=itemKey(d); userState[k]=Object.assign(userState[k]||{},patch); saveState(); }
+
+// ── User CRUD data (localStorage) ──
+const UD_KEY = 'foodie_user_data';
+function loadUserData(){
+  try{ const d=JSON.parse(localStorage.getItem(UD_KEY)); return {added:d.added||[],edited:d.edited||{},deleted:d.deleted||[]}; }
+  catch(e){ return {added:[],edited:{},deleted:[]}; }
+}
+function saveUserData(ud){ localStorage.setItem(UD_KEY, JSON.stringify(ud)); }
+function generateItemId(){ return 'user_'+Date.now()+'_'+Math.random().toString(36).slice(2,7); }
+
+function getMergedData(){
+  const ud=loadUserData();
+  let merged=DATA.filter(d=>!ud.deleted.includes(itemKey(d)));
+  merged=merged.map(d=>{
+    const edits=ud.edited[itemKey(d)];
+    return edits?Object.assign({},d,edits,{_source:'sync'}):Object.assign({},d,{_source:'sync'});
+  });
+  ud.added.forEach(d=>merged.push(Object.assign({},d,{_source:'user'})));
+  return merged;
+}
+let _mergedCache=null;
+function getCachedMerged(){ if(!_mergedCache) _mergedCache=getMergedData(); return _mergedCache; }
+function invalidateCache(){ _mergedCache=null; }
+
+// ── District hierarchy: district → sub-areas ──
+const DISTRICT_MAP={
+  '东城':['鼓楼/南锣','东四/北新桥','雍和宫/国子监','什刹海/地安门','五道营/安定门','隆福寺','东直门','王府井','前门/桥湾','天安门'],
+  '西城':['西四/白塔寺','西单/宣武门','牛街/菜市口'],
+  '朝阳':['三里屯/工体','亮马桥/蓝港','朝阳门/建国门','朝阳公园','望京','合生汇','十里堡','银泰','朝阳'],
+  '海淀':['海淀','华熙/五棵松','西直门'],
+  '丰台':['丰台'],
+  '门头沟':['门头沟'],
+  '顺义':['顺义'],
+  '密云':['密云'],
+  '怀柔':['怀柔'],
+  '平谷':['平谷'],
+  '延庆':['延庆'],
+  '其他区':['其他'],
+};
+// Reverse map: sub-area → district
+const AREA_TO_DISTRICT={};
+Object.entries(DISTRICT_MAP).forEach(([dist,subs])=>subs.forEach(s=>AREA_TO_DISTRICT[s]=dist));
+
+// ── Filter state ──
+let activeRegion="all", activeCats=new Set(["all"]), activeDistrict="全部", activeArea="全部", activeStatus="all", searchQuery="";
+
+function getDistrictsForRegion(region){
+  if(region!=='北京') return [];
+  const set=new Set();
+  getCachedMerged().forEach(d=>{
+    if(d.region!=='北京') return;
+    const dist=AREA_TO_DISTRICT[d.area];
+    if(dist) set.add(dist);
+  });
+  return ['全部',...Array.from(set).sort((a,b)=>a.localeCompare(b,'zh'))];
+}
+function getSubAreasForDistrict(district){
+  if(district==='全部') return [];
+  const subs=DISTRICT_MAP[district]||[];
+  const set=new Set();
+  getCachedMerged().forEach(d=>{
+    if(d.region!=='北京') return;
+    if(subs.includes(d.area)) set.add(d.area);
+  });
+  // Only show sub-area buttons if there are 2+ distinct sub-areas
+  if(set.size<=1) return [];
+  return ['全部',...Array.from(set).sort((a,b)=>a.localeCompare(b,'zh'))];
+}
+function getAreasForRegion(region){
+  // For non-Beijing regions, flat area list
+  if(region==='all'||region!=='北京'){
+    const set=new Set();
+    getCachedMerged().forEach(d=>{ if(region==='all'||d.region===region){ if(d.area) set.add(d.area); } });
+    return ["全部",...Array.from(set).sort((a,b)=>{ if(a==="其他")return 1; if(b==="其他")return -1; return a.localeCompare(b,'zh'); })];
+  }
+  return [];
+}
+
+function updateStats(){
+  const md=getCachedMerged();
+  document.getElementById('statTotal').textContent=md.length;
+  document.getElementById('statEat').textContent=md.filter(d=>d.region==="北京").length;
+  document.getElementById('statPlay').textContent=md.filter(d=>d.region==="中国").length;
+  document.getElementById('statTravel').textContent=md.filter(d=>d.region==="海外").length;
+}
+function init(){
+  loadState();
+  updateStats();
+
+  // Region filters
+  const regionWrap=document.getElementById('regionFilters');
+  REGIONS.forEach(r=>{
+    const btn=document.createElement('button');
+    btn.className='filter-btn region-btn'+(r.key==='all'?' active':'');
+    btn.dataset.region=r.key;
+    btn.innerHTML='<span class="emoji">'+r.emoji+'</span>'+r.label;
+    btn.onclick=()=>{ activeRegion=r.key; activeDistrict="全部"; activeArea="全部"; buildDistrictFilters(); updateFilters(); render(); };
+    regionWrap.appendChild(btn);
+  });
+  // Category filters
+  const catWrap=document.getElementById('catFilters');
+  CATEGORIES.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.className='filter-btn'+(c.key==='all'?' active':'');
+    btn.dataset.cat=c.key;
+    btn.innerHTML=(c.emoji?'<span class="emoji">'+c.emoji+'</span>':'')+c.label;
+    btn.onclick=()=>{
+      if(c.key==='all'){
+        activeCats=new Set(['all']);
+      } else {
+        activeCats.delete('all');
+        if(activeCats.has(c.key)){ activeCats.delete(c.key); }
+        else { activeCats.add(c.key); }
+        if(activeCats.size===0) activeCats=new Set(['all']);
+      }
+      updateFilters(); render();
+    };
+    catWrap.appendChild(btn);
+  });
+  buildDistrictFilters();
+  // Init status filter default
+  document.querySelectorAll('.status-btn').forEach(b=>{ b.classList.toggle('active',b.dataset.status==='all'); });
+  // Search
+  document.getElementById('searchInput').addEventListener('input',e=>{ searchQuery=e.target.value.trim().toLowerCase(); render(); });
+  // Scroll to top
+  window.addEventListener('scroll',()=>{
+    document.getElementById('scrollTop').classList.toggle('show',window.scrollY>400);
+    document.getElementById('stickyBar').classList.toggle('stuck',window.scrollY>200);
+  });
+  render();
+}
+
+function buildDistrictFilters(){
+  const w=document.getElementById('districtFilters'); w.innerHTML='';
+  if(activeRegion!=='北京'){ w.style.display='none'; buildAreaFilters(); return; }
+  w.style.display='';
+  getDistrictsForRegion('北京').forEach(d=>{
+    const btn=document.createElement('button');
+    btn.className='filter-btn district-btn'+(d===activeDistrict?' active':'');
+    btn.dataset.district=d; btn.textContent=d;
+    btn.onclick=()=>{ activeDistrict=d; activeArea='全部'; buildAreaFilters(); updateFilters(); render(); };
+    w.appendChild(btn);
+  });
+  buildAreaFilters();
+}
+function buildAreaFilters(){
+  const w=document.getElementById('areaFilters'); w.innerHTML='';
+  if(activeRegion==='北京'){
+    // Show sub-areas for active district
+    const subs=getSubAreasForDistrict(activeDistrict);
+    if(!subs.length){ w.style.display='none'; return; }
+    w.style.display='';
+    subs.forEach(a=>{
+      const btn=document.createElement('button');
+      btn.className='filter-btn area-btn'+(a===activeArea?' active':'');
+      btn.dataset.area=a; btn.textContent=a;
+      btn.onclick=()=>{ activeArea=a; updateFilters(); render(); };
+      w.appendChild(btn);
+    });
+  } else if(activeRegion!=='all'){
+    // Non-Beijing: flat area list
+    const areas=getAreasForRegion(activeRegion);
+    if(areas.length<=1){ w.style.display='none'; return; }
+    w.style.display='';
+    areas.forEach(a=>{
+      const btn=document.createElement('button');
+      btn.className='filter-btn area-btn'+(a===activeArea?' active':'');
+      btn.dataset.area=a; btn.textContent=a;
+      btn.onclick=()=>{ activeArea=a; updateFilters(); render(); };
+      w.appendChild(btn);
+    });
+  } else {
+    w.style.display='none';
+  }
+}
+
+window.setStatusFilter=function(s){
+  activeStatus=s;
+  document.querySelectorAll('.status-btn').forEach(b=>{
+    b.classList.remove('active','active-visited','active-unvisited');
+    if(b.dataset.status===s){
+      b.classList.add(s==='visited'?'active-visited':s==='unvisited'?'active-unvisited':'active');
+    }
+  });
+  render();
+};
+
+function updateFilters(){
+  document.querySelectorAll('#regionFilters .filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.region===activeRegion));
+  document.querySelectorAll('#catFilters .filter-btn').forEach(b=>b.classList.toggle('active',activeCats.has(b.dataset.cat)));
+  document.querySelectorAll('#districtFilters .filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.district===activeDistrict));
+  document.querySelectorAll('#areaFilters .filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.area===activeArea));
+}
+
+function render(){
+  invalidateCache();
+  updateStats();
+  const grid=document.getElementById('grid');
+  let filtered=getCachedMerged().filter(d=>{
+    if(activeRegion!=='all' && d.region!==activeRegion) return false;
+    if(!activeCats.has('all') && !activeCats.has(d.cat)) return false;
+    // Two-level: district then sub-area (Beijing only)
+    if(activeRegion==='北京' && activeDistrict!=='全部'){
+      const subs=DISTRICT_MAP[activeDistrict]||[];
+      if(!subs.includes(d.area)) return false;
+      if(activeArea!=='全部' && d.area!==activeArea) return false;
+    } else if(activeArea!=='全部' && d.area!==activeArea) return false;
+    if(activeStatus==='visited' && !getState(d).visited) return false;
+    if(activeStatus==='unvisited' && getState(d).visited) return false;
+    if(searchQuery){
+      const hay=(d.name+d.nameEn+d.desc+d.area+d.region+(d.tags||[]).join('')+(CAT_LABEL[d.cat]||'')).toLowerCase();
+      return hay.includes(searchQuery);
+    }
+    return true;
+  });
+
+  // Sort: visited first, then by name
+  filtered.sort((a,b)=>{
+    const va=getState(a).visited?0:1, vb=getState(b).visited?0:1;
+    if(va!==vb) return va-vb;
+    return 0; // preserve original order within each group
+  });
+
+  document.getElementById('resultCount').textContent=filtered.length;
+  if(!filtered.length){
+    grid.innerHTML='<div class="empty"><div class="empty-emoji">&#x1F50D;</div><div class="empty-text">没有找到匹配的地方，试试其他关键词？</div></div>';
+    return;
+  }
+
+  let html='', delay=0;
+  filtered.forEach((d,idx)=>{
+    const emoji=CAT_EMOJI[d.cat]||'📍';
+    const catLabel=CAT_LABEL[d.cat]||'';
+    const st=getState(d);
+    const visited=st.visited;
+
+    html+=`<div class="card${visited?' is-visited':''}" data-cat="${d.cat}" data-idx="${idx}" style="animation-delay:${Math.min(delay,600)}ms">`;
+    // Top-right: visited check + note star
+    html+='<div class="card-top-right">';
+    const isStarred=getState(d).star!==undefined?getState(d).star:d.star;
+    html+=`<button class="card-recommend${isStarred?' active':''}" onclick="toggleStar(${idx})">推荐</button>`;
+    html+=`<button class="card-visited${visited?' checked':''}" onclick="toggleVisited(this,${idx})" title="${visited?'标记为未去过':'标记为已去过'}">&#10003;</button>`;
+    html+='</div>';
+    // Header
+    html+='<div class="card-header">';
+    html+=`<div class="card-emoji">${emoji}</div>`;
+    html+='<div class="card-title-wrap">';
+    html+=`<div class="card-name">${esc(d.name)}</div>`;
+    if(d.nameEn) html+=`<div class="card-name-en">${esc(d.nameEn)}</div>`;
+    html+='</div></div>';
+    // Tags
+    html+='<div class="card-tags">';
+    html+=`<span class="tag tag-category">${catLabel}</span>`;
+    if(activeRegion==='all') html+=`<span class="tag tag-area">${esc(d.region)}</span>`;
+    if(d.area && d.area!=='其他') html+=`<span class="tag tag-area">${esc(d.area)}</span>`;
+    if(d.desc && d.desc!==d.area) html+=`<span class="tag tag-feature">${esc(d.desc)}</span>`;
+    (d.tags||[]).forEach(t=>{ html+=`<span class="tag tag-feature">${esc(t)}</span>`; });
+    html+='</div>';
+    // Edit/delete — small icons bottom-right
+    html+='<div class="card-actions">';
+    if(d._source==='user') html+='<span class="card-user-badge">手动</span>';
+    html+=`<button class="card-action-btn" onclick="openEditModal(${idx})" title="编辑">&#9998;</button>`;
+    html+=`<button class="card-action-btn card-action-delete" onclick="deleteItem(${idx})" title="删除">&times;</button>`;
+    html+='</div>';
+    html+='</div>';
+    delay+=30;
+  });
+  grid.innerHTML=html;
+  // Store current filtered list for event handlers
+  window._filtered=filtered;
+  // Update map if visible
+  if(mapVisible) renderMap();
+}
+
+// ── Event handlers ──
+window.toggleVisited=function(btn,idx){
+  const d=window._filtered[idx];
+  const st=getState(d);
+  setState(d,{visited:!st.visited});
+  render();
+};
+window.toggleStar=function(idx){
+  const d=window._filtered[idx];
+  const st=getState(d);
+  const current=st.star!==undefined?st.star:d.star;
+  setState(d,{star:!current});
+  render();
+};
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Modal / CRUD ──
+let _editMode=null; // null=add, {source:'sync',key:'...'} or {source:'user',id:'...'}
+
+function initModalSelects(){
+  const catSel=document.getElementById('fCat');
+  if(!catSel.options.length){
+    CATEGORIES.filter(c=>c.key!=='all').forEach(c=>{
+      const opt=document.createElement('option'); opt.value=c.key; opt.textContent=c.emoji+' '+c.label;
+      catSel.appendChild(opt);
+    });
+  }
+  const regSel=document.getElementById('fRegion');
+  if(!regSel.options.length){
+    REGIONS.filter(r=>r.key!=='all').forEach(r=>{
+      const opt=document.createElement('option'); opt.value=r.key; opt.textContent=r.label;
+      regSel.appendChild(opt);
+    });
+  }
+}
+
+window.updateAreaList=function(){
+  const region=document.getElementById('fRegion').value;
+  const dl=document.getElementById('areaList'); dl.innerHTML='';
+  const areas=getAreasForRegion(region).filter(a=>a!=='全部');
+  areas.forEach(a=>{ const opt=document.createElement('option'); opt.value=a; dl.appendChild(opt); });
+};
+
+window.openModal=function(item){
+  initModalSelects();
+  const form=document.getElementById('modalForm');
+  form.reset();
+  if(item){
+    // Edit mode
+    _editMode=item._source==='user'?{source:'user',id:item._id}:{source:'sync',key:itemKey(item)};
+    document.getElementById('modalTitle').textContent='编辑地点';
+    document.getElementById('fName').value=item.name||'';
+    document.getElementById('fNameEn').value=item.nameEn||'';
+    document.getElementById('fCat').value=item.cat||'restaurant';
+    document.getElementById('fRegion').value=item.region||'北京';
+    updateAreaList();
+    document.getElementById('fArea').value=item.area||'';
+    document.getElementById('fDesc').value=item.desc||'';
+    document.getElementById('fTags').value=(item.tags||[]).join(', ');
+    document.getElementById('fVisited').checked=!!getState(item).visited;
+  } else {
+    // Add mode
+    _editMode=null;
+    document.getElementById('modalTitle').textContent='添加新地点';
+    // Default to current active region if set
+    if(activeRegion!=='all') document.getElementById('fRegion').value=activeRegion;
+    if(!activeCats.has('all') && activeCats.size===1) document.getElementById('fCat').value=activeCats.values().next().value;
+    updateAreaList();
+    if(activeArea!=='全部') document.getElementById('fArea').value=activeArea;
+  }
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('fName').focus();
+};
+
+window.closeModal=function(){
+  document.getElementById('modalOverlay').classList.remove('show');
+  _editMode=null;
+};
+
+window.openEditModal=function(idx){
+  const d=window._filtered[idx];
+  openModal(d);
+};
+
+window.saveModal=function(){
+  const name=document.getElementById('fName').value.trim();
+  if(!name){alert('请输入名称');return;}
+  const item={
+    name:name,
+    nameEn:document.getElementById('fNameEn').value.trim(),
+    cat:document.getElementById('fCat').value,
+    region:document.getElementById('fRegion').value,
+    area:document.getElementById('fArea').value.trim()||'其他',
+    desc:document.getElementById('fDesc').value.trim(),
+    star:false,
+    visited:document.getElementById('fVisited').checked,
+    tags:document.getElementById('fTags').value.split(/[,，]/).map(s=>s.trim()).filter(Boolean),
+  };
+  const ud=loadUserData();
+  if(!_editMode){
+    // Add new
+    item._id=generateItemId();
+    ud.added.push(item);
+    saveUserData(ud);
+    // Also set visited state
+    invalidateCache();
+    setState(item,{visited:item.visited});
+  } else if(_editMode.source==='user'){
+    // Edit user-added item
+    const idx=ud.added.findIndex(d=>d._id===_editMode.id);
+    if(idx>-1){
+      const oldKey=itemKey(ud.added[idx]);
+      item._id=_editMode.id;
+      ud.added[idx]=item;
+      saveUserData(ud);
+      invalidateCache();
+      // Update state key if name/region/area changed
+      const newKey=itemKey(item);
+      if(oldKey!==newKey && userState[oldKey]){
+        userState[newKey]=userState[oldKey];
+        delete userState[oldKey];
+        saveState();
+      }
+      setState(item,{visited:item.visited});
+    }
+  } else {
+    // Edit sync item — store as overlay
+    ud.edited[_editMode.key]=item;
+    saveUserData(ud);
+    invalidateCache();
+    setState(item,{visited:item.visited});
+  }
+  closeModal();
+  render();
+};
+
+window.deleteItem=function(idx){
+  const d=window._filtered[idx];
+  if(!confirm('确定要删除「'+d.name+'」吗？')) return;
+  const ud=loadUserData();
+  if(d._source==='user'&&d._id){
+    ud.added=ud.added.filter(a=>a._id!==d._id);
+  } else {
+    const key=itemKey(d);
+    if(!ud.deleted.includes(key)) ud.deleted.push(key);
+    // Also remove any edits for this item
+    delete ud.edited[key];
+  }
+  saveUserData(ud);
+  // Clean up user state
+  delete userState[itemKey(d)];
+  saveState();
+  invalidateCache();
+  render();
+};
+
+window.exportData=function(){
+  const merged=getCachedMerged();
+  const clean=merged.map(function(d){
+    const c=Object.assign({},d);
+    delete c._id; delete c._source;
+    return c;
+  });
+  const js='// Auto-generated export at '+new Date().toISOString()+'\nconst DATA = '+JSON.stringify(clean,null,2)+';\n';
+  const blob=new Blob([js],{type:'text/javascript'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='data.js';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+// Close modal on Escape key
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closeModal();
+});
+
+// ── Map ──
+const AREA_COORDS={
+  // Beijing districts
+  '鼓楼/南锣':[39.9397,116.3972],'前门/桥湾':[39.8980,116.3975],'东四/北新桥':[39.9296,116.4168],
+  '三里屯/工体':[39.9334,116.4540],'什刹海/地安门':[39.9381,116.3835],'西四/白塔寺':[39.9266,116.3639],
+  '雍和宫/国子监':[39.9477,116.4174],'亮马桥/蓝港':[39.9500,116.4680],'朝阳门/建国门':[39.9210,116.4370],
+  '东直门':[39.9420,116.4310],'五道营/安定门':[39.9470,116.4050],'隆福寺':[39.9280,116.4100],
+  '朝阳公园':[39.9360,116.4780],'望京':[39.9920,116.4720],'门头沟':[39.9405,116.1014],
+  '密云':[40.3776,116.8434],'怀柔':[40.3161,116.6319],'平谷':[40.1447,117.1219],
+  '延庆':[40.4567,115.9850],'海淀':[39.9590,116.2980],'顺义':[40.1300,116.6540],
+  '丰台':[39.8585,116.2870],'牛街/菜市口':[39.8920,116.3580],'王府井':[39.9140,116.4100],
+  '天安门':[39.9055,116.3976],'西单/宣武门':[39.9060,116.3730],'朝阳':[39.9220,116.4430],
+  '华熙/五棵松':[39.9060,116.2800],'合生汇':[39.8760,116.4650],'西直门':[39.9410,116.3530],
+  '十里堡':[39.9250,116.5020],'银泰':[39.9100,116.4600],
+  // China provinces/cities
+  '山西':[37.8700,112.5500],'山东':[36.6700,116.9800],'云南':[25.0400,102.7100],
+  '浙江':[30.2700,120.1500],'贵州':[26.6500,106.6300],'福建':[26.0700,119.3000],
+  '广西':[22.8200,108.3200],'湖南':[28.2300,112.9400],'江西':[28.6800,115.8600],
+  '四川':[30.5700,104.0700],'新疆':[43.7900,87.6300],'西藏':[29.6500,91.1200],
+  '河北':[38.0400,114.5100],'北京周边':[40.2200,116.2300],
+  // Overseas
+  '法国':[46.6034,1.8883],'德国':[51.1657,10.4515],'瑞士':[46.8182,8.2275],
+  '奥地利':[47.5162,14.5501],'匈牙利':[47.1625,19.5033],'意大利':[41.8719,12.5674],
+  '希腊':[39.0742,21.8243],'塞尔维亚':[44.0165,21.0059],'格鲁吉亚':[42.3154,43.3569],
+  '以色列':[31.0461,34.8516],'韩国':[35.9078,127.7669],'摩洛哥':[31.7917,-7.0926],
+  '东南亚':[3.1390,101.6869],'加勒比海':[18.7357,-70.1627],
+};
+// Fallback: region centers
+const REGION_CENTERS={'北京':[39.9042,116.4074],'中国':[35.8617,104.1954],'海外':[30,10]};
+
+let mapInstance=null, mapMarkers=[], mapVisible=false;
+
+window.toggleMap=function(){
+  mapVisible=!mapVisible;
+  document.getElementById('mapToggleBtn').classList.toggle('active',mapVisible);
+  document.getElementById('mapContainer').style.display=mapVisible?'block':'none';
+  if(mapVisible) renderMap();
+};
+
+function getFilteredItems(){
+  return getCachedMerged().filter(d=>{
+    if(activeRegion!=='all' && d.region!==activeRegion) return false;
+    if(!activeCats.has('all') && !activeCats.has(d.cat)) return false;
+    if(activeRegion==='北京' && activeDistrict!=='全部'){
+      const subs=DISTRICT_MAP[activeDistrict]||[];
+      if(!subs.includes(d.area)) return false;
+      if(activeArea!=='全部' && d.area!==activeArea) return false;
+    } else if(activeArea!=='全部' && d.area!==activeArea) return false;
+    if(activeStatus==='visited' && !getState(d).visited) return false;
+    if(activeStatus==='unvisited' && getState(d).visited) return false;
+    if(searchQuery){
+      const hay=(d.name+d.nameEn+d.desc+d.area+d.region+(d.tags||[]).join('')+(CAT_LABEL[d.cat]||'')).toLowerCase();
+      return hay.includes(searchQuery);
+    }
+    return true;
+  });
+}
+
+function renderMap(){
+  const items=getFilteredItems();
+  if(!mapInstance){
+    mapInstance=L.map('map',{
+      zoomControl:false,
+      scrollWheelZoom:true,
+      wheelDebounceTime:40,
+      wheelPxPerZoomLevel:80,
+      doubleClickZoom:true,
+      touchZoom:true,
+      dragging:true,
+      inertia:true,
+      zoomSnap:0.5,
+      zoomDelta:0.5,
+      minZoom:2,
+      maxZoom:18,
+    }).setView([39.9042,116.4074],11);
+    // Zoom controls top-right
+    L.control.zoom({position:'topright'}).addTo(mapInstance);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+      attribution:'&copy; <a href="https://carto.com/">CARTO</a>',maxZoom:19,subdomains:'abcd',
+    }).addTo(mapInstance);
+  }
+  // Clear old markers
+  mapMarkers.forEach(m=>mapInstance.removeLayer(m));
+  mapMarkers=[];
+
+  // Color by category
+  const catColors={coffee:'#8B6914',restaurant:'#D4956A',bar:'#9B59B6',bakery:'#E8735A',culture:'#3498DB',explore:'#27AE60',leisure:'#E84393'};
+
+  const bounds=[];
+  items.forEach(d=>{
+    let coords=AREA_COORDS[d.area];
+    if(!coords) coords=AREA_COORDS[d.region] || REGION_CENTERS[d.region];
+    if(!coords) return;
+    // Add jitter so overlapping items spread out (less for overseas)
+    const jitter=d.region==='北京'?0.006:d.region==='中国'?0.15:0.3;
+    const lat=coords[0]+(Math.random()-0.5)*jitter;
+    const lng=coords[1]+(Math.random()-0.5)*jitter;
+    const color=catColors[d.cat]||'#C4573A';
+    const isStarred=getState(d).star!==undefined?getState(d).star:d.star;
+    const visited=getState(d).visited;
+
+    const size=d.region==='北京'?12:16;
+    const icon=L.divIcon({
+      className:'',
+      html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2px solid #FFF;box-shadow:0 2px 6px rgba(0,0,0,0.35);${visited?'':'opacity:0.6'}"></div>`,
+      iconSize:[size,size],iconAnchor:[size/2,size/2],
+    });
+    const marker=L.marker([lat,lng],{icon:icon}).addTo(mapInstance);
+    const popup=`<div class="map-popup">
+      <div class="popup-name">${esc(d.name)}${d.nameEn?' <span style="font-weight:400;font-style:italic;font-size:12px">'+esc(d.nameEn)+'</span>':''}</div>
+      <div class="popup-cat">${CAT_EMOJI[d.cat]||''} ${CAT_LABEL[d.cat]||''}</div>
+      ${d.area&&d.area!=='其他'?'<div class="popup-area">'+esc(d.region)+' · '+esc(d.area)+'</div>':'<div class="popup-area">'+esc(d.region)+'</div>'}
+      ${isStarred?'<div class="popup-star">推荐</div>':''}
+      ${d.desc?'<div class="popup-desc">'+esc(d.desc)+'</div>':''}
+    </div>`;
+    marker.bindPopup(popup,{maxWidth:240});
+    mapMarkers.push(marker);
+    bounds.push([lat,lng]);
+  });
+
+  if(bounds.length){
+    if(activeRegion==='all'){
+      // World view — center on items, low zoom so all points visible
+      mapInstance.setView([35,60],3);
+    } else {
+      mapInstance.fitBounds(bounds,{padding:[40,40],maxZoom:14});
+    }
+  }
+  // Fix map size after toggle
+  setTimeout(()=>mapInstance.invalidateSize(),100);
+}
+
+window.mapJump=function(target){
+  if(!mapInstance) return;
+  document.querySelectorAll('.map-jump-btn').forEach(b=>{
+    b.classList.toggle('active',b.textContent.trim()==={beijing:'北京',china:'中国',world:'全球'}[target]);
+  });
+  if(target==='beijing') mapInstance.flyTo([39.93,116.40],12,{duration:0.8});
+  else if(target==='china') mapInstance.flyTo([35,105],4,{duration:0.8});
+  else mapInstance.flyTo([30,50],3,{duration:0.8});
+};
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>

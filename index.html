@@ -272,6 +272,36 @@ body{
 .empty-emoji{font-size:48px;margin-bottom:12px}
 .empty-text{font-size:15px;color:var(--muted)}
 
+/* Recommend section */
+.recommend-section{
+  max-width:800px;margin:48px auto 0;padding:0 24px;
+}
+.recommend-card{
+  background:var(--card);border:2px dashed var(--light-border);border-radius:20px;
+  padding:32px 28px;text-align:center;transition:border-color 0.3s;
+}
+.recommend-card:hover{border-color:var(--primary-light)}
+.recommend-icon{font-size:36px;margin-bottom:12px}
+.recommend-title{
+  font-family:'Noto Serif SC','Cormorant Garamond',serif;
+  font-size:1.4rem;font-weight:700;color:var(--dark);margin-bottom:8px;
+}
+.recommend-desc{
+  font-size:14px;color:var(--muted);line-height:1.7;max-width:520px;margin:0 auto;
+}
+.recommend-arrow{
+  display:inline-block;margin-top:16px;font-size:20px;color:var(--primary);
+  animation:bounce-down 1.5s ease-in-out infinite;
+}
+@keyframes bounce-down{
+  0%,100%{transform:translateY(0);opacity:0.6}
+  50%{transform:translateY(6px);opacity:1}
+}
+/* Giscus container */
+.giscus-wrap{
+  max-width:800px;margin:24px auto 0;padding:0 24px;
+}
+
 /* Footer */
 .footer{
   text-align:center;padding:40px 24px;
@@ -450,6 +480,38 @@ body{
   </div>
 </div>
 <div class="grid" id="grid"></div>
+
+<div class="recommend-section">
+  <div class="recommend-card">
+    <div class="recommend-icon">&#x1F4AC;</div>
+    <div class="recommend-title">你的推荐</div>
+    <div class="recommend-desc">
+      发现了好吃的、好喝的、好玩的？<br>
+      请在下方评论区留言推荐，我会择优收录到列表中！<br>
+      <span style="color:var(--primary);font-weight:500">格式参考：店名 + 区域 + 一句话点评</span>
+    </div>
+    <div class="recommend-arrow">&#8595;</div>
+  </div>
+</div>
+
+<div class="giscus-wrap">
+  <script src="https://giscus.app/client.js"
+    data-repo="elinking-111/foodie-project"
+    data-repo-id="R_kgDOSGf1mg"
+    data-category="Announcements"
+    data-category-id="DIC_kwDOSGf1ms4C7PqV"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light_protanopia"
+    data-lang="zh-CN"
+    data-loading="lazy"
+    crossorigin="anonymous"
+    async>
+  </script>
+</div>
 
 <div class="footer">
   EAT &middot; DRINK &middot; EXPLORE &middot; TRAVEL &mdash; Last updated April 2026

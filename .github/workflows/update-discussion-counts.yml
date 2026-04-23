@@ -1,0 +1,43 @@
+name: Update Discussion Counts
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+  discussion:
+    types: [created, deleted, edited, transferred, unlabeled, labeled, reopened, closed]
+  discussion_comment:
+    types: [created, deleted, edited]
+
+permissions:
+  contents: write
+  discussions: read
+
+jobs:
+  update-counts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate counts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/update_discussion_counts.js
+
+      - name: Commit changes
+        run: |
+          if git diff --quiet discussion-counts.json; then
+            echo "No count changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add discussion-counts.json
+          git commit -m "Update discussion counts"
+          git push

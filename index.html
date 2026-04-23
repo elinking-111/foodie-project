@@ -192,6 +192,36 @@ body{
 }
 .card-recommend:hover{background:#E8D5CB;color:var(--dark)}
 .card-recommend.active{background:var(--primary);color:#FFF}
+.card-discussion-actions{
+  display:flex;align-items:center;gap:8px;margin-top:14px;
+}
+.card-comment-btn,.comment-switch-btn{
+  appearance:none;border:none;border-radius:999px;
+  padding:8px 14px;font-size:12px;font-weight:600;font-family:inherit;
+  background:#F5F0E8;color:var(--accent);cursor:pointer;transition:all 0.2s ease;
+}
+.card-comment-btn:hover,.comment-switch-btn:hover{
+  background:#E8D5CB;color:var(--dark);
+}
+.card-comment-btn.active{
+  background:var(--dark);color:#FFF;
+}
+.card-discussion{
+  margin-top:14px;padding-top:14px;border-top:1px solid var(--light-border);
+}
+.card-discussion-header{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  margin-bottom:8px;flex-wrap:wrap;
+}
+.card-discussion-title{
+  font-family:'Noto Serif SC',serif;font-size:15px;font-weight:600;color:var(--dark);
+}
+.card-discussion-meta{
+  font-size:12px;color:var(--muted);
+}
+.card-discussion-mount{
+  min-height:220px;
+}
 /* Map toggle */
 .map-toggle-btn{
   padding:5px 14px;border:1.5px solid var(--light-border);border-radius:100px;font-size:12px;font-family:inherit;
@@ -300,6 +330,10 @@ body{
 /* Giscus container */
 .giscus-wrap{
   max-width:800px;margin:24px auto 0;padding:0 24px;
+}
+.giscus-status{
+  max-width:800px;margin:0 auto 12px;padding:0 24px;
+  font-size:13px;line-height:1.7;color:var(--muted);text-align:center;
 }
 
 /* Footer */
@@ -487,30 +521,19 @@ body{
     <div class="recommend-title">你的推荐</div>
     <div class="recommend-desc">
       发现了好吃的、好喝的、好玩的？<br>
-      请在下方评论区留言推荐，我会择优收录到列表中！<br>
+      每家卡片里都可以点「评论留言」单独讨论，<br>
+      也可以在下方总留言区推荐新地方，我会择优收录到列表中！<br>
       <span style="color:var(--primary);font-weight:500">格式参考：店名 + 区域 + 一句话点评</span>
     </div>
     <div class="recommend-arrow">&#8595;</div>
   </div>
 </div>
 
+<div class="giscus-status" id="globalDiscussionHint">
+  想给某一家单独留言，可以先点开对应卡片里的「评论留言」。
+</div>
 <div class="giscus-wrap">
-  <script src="https://giscus.app/client.js"
-    data-repo="elinking-111/foodie-project"
-    data-repo-id="R_kgDOSGf1mg"
-    data-category="Announcements"
-    data-category-id="DIC_kwDOSGf1ms4C7PqV"
-    data-mapping="pathname"
-    data-strict="0"
-    data-reactions-enabled="1"
-    data-emit-metadata="0"
-    data-input-position="top"
-    data-theme="light_protanopia"
-    data-lang="zh-CN"
-    data-loading="lazy"
-    crossorigin="anonymous"
-    async>
-  </script>
+  <div id="globalCommentMount"></div>
 </div>
 
 <div class="footer">
@@ -589,6 +612,14 @@ const REGIONS = [
 ];
 
 const READONLY = true;
+const GISCUS_CONFIG = {
+  repo: 'elinking-111/foodie-project',
+  repoId: 'R_kgDOSGf1mg',
+  category: 'Announcements',
+  categoryId: 'DIC_kwDOSGf1ms4C7PqV',
+  theme: 'light_protanopia',
+  lang: 'zh-CN',
+};
 
 const CAT_EMOJI={}, CAT_LABEL={};
 CATEGORIES.forEach(c=>{ if(c.key!=='all'){CAT_EMOJI[c.key]=c.emoji; CAT_LABEL[c.key]=c.label;} });
@@ -646,6 +677,7 @@ Object.entries(DISTRICT_MAP).forEach(([dist,subs])=>subs.forEach(s=>AREA_TO_DIST
 
 // ── Filter state ──
 let activeRegion="all", activeCats=new Set(["all"]), activeDistrict="全部", activeArea="全部", activeStatus="all", searchQuery="";
+let activeDiscussionTerm=null;
 
 function getDistrictsForRegion(region){
   if(region!=='北京') return [];
@@ -826,10 +858,12 @@ function render(){
     if(va!==vb) return va-vb;
     return 0; // preserve original order within each group
   });
+  if(activeDiscussionTerm && !filtered.some(d=>getDiscussionTerm(d)===activeDiscussionTerm)) activeDiscussionTerm=null;
 
   document.getElementById('resultCount').textContent=filtered.length;
   if(!filtered.length){
     grid.innerHTML='<div class="empty"><div class="empty-emoji">&#x1F50D;</div><div class="empty-text">没有找到匹配的地方，试试其他关键词？</div></div>';
+    renderDiscussion();
     return;
   }
 
@@ -862,6 +896,16 @@ function render(){
     if(d.desc && d.desc!==d.area) html+=`<span class="tag tag-feature">${esc(d.desc)}</span>`;
     (d.tags||[]).forEach(t=>{ html+=`<span class="tag tag-feature">${esc(t)}</span>`; });
     html+='</div>';
+    const discussionOpen=activeDiscussionTerm===getDiscussionTerm(d);
+    html+='<div class="card-discussion-actions">';
+    html+=`<button class="card-comment-btn${discussionOpen?' active':''}" onclick="toggleDiscussion(${idx})">${discussionOpen?'收起评论':'评论留言'}</button>`;
+    html+='</div>';
+    if(discussionOpen){
+      html+='<div class="card-discussion">';
+      html+=`<div class="card-discussion-header"><div class="card-discussion-title">${esc(d.name)} 的评论区</div><div class="card-discussion-meta">${esc(getDiscussionMeta(d))}</div></div>`;
+      html+='<div class="card-discussion-mount" id="cardDiscussionMount"></div>';
+      html+='</div>';
+    }
     if(!READONLY){
     html+='<div class="card-actions">';
     if(d._source==='user') html+='<span class="card-user-badge">手动</span>';
@@ -875,6 +919,7 @@ function render(){
   grid.innerHTML=html;
   // Store current filtered list for event handlers
   window._filtered=filtered;
+  renderDiscussion();
   // Update map if visible
   if(mapVisible) renderMap();
 }
@@ -893,8 +938,74 @@ window.toggleStar=function(idx){
   setState(d,{star:!current});
   render();
 };
+window.toggleDiscussion=function(idx){
+  const d=window._filtered[idx];
+  const term=getDiscussionTerm(d);
+  activeDiscussionTerm=activeDiscussionTerm===term?null:term;
+  render();
+  requestAnimationFrame(()=>{
+    const mount=activeDiscussionTerm?document.getElementById('cardDiscussionMount'):document.getElementById('globalCommentMount');
+    if(mount) mount.scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+};
+window.resetDiscussion=function(){
+  activeDiscussionTerm=null;
+  render();
+};
 
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getDiscussionTerm(d){ return ['restaurant',d.region,d.area,d.name].join('|'); }
+function getDiscussionMeta(d){
+  return [CAT_LABEL[d.cat]||'', d.region, d.area && d.area!=='其他'?d.area:''].filter(Boolean).join(' · ');
+}
+function getActiveDiscussionItem(){
+  return (window._filtered||[]).find(d=>getDiscussionTerm(d)===activeDiscussionTerm)||null;
+}
+function mountGiscus(target,{mapping,term,title}){
+  if(!target) return;
+  target.innerHTML='';
+  const script=document.createElement('script');
+  script.src='https://giscus.app/client.js';
+  script.async=true;
+  script.crossOrigin='anonymous';
+  script.setAttribute('data-repo',GISCUS_CONFIG.repo);
+  script.setAttribute('data-repo-id',GISCUS_CONFIG.repoId);
+  script.setAttribute('data-category',GISCUS_CONFIG.category);
+  script.setAttribute('data-category-id',GISCUS_CONFIG.categoryId);
+  script.setAttribute('data-mapping',mapping);
+  script.setAttribute('data-strict',mapping==='specific'?'1':'0');
+  script.setAttribute('data-reactions-enabled','1');
+  script.setAttribute('data-emit-metadata','0');
+  script.setAttribute('data-input-position','top');
+  script.setAttribute('data-theme',GISCUS_CONFIG.theme);
+  script.setAttribute('data-lang',GISCUS_CONFIG.lang);
+  script.setAttribute('data-loading','lazy');
+  if(mapping==='specific'){
+    script.setAttribute('data-term',term);
+    script.setAttribute('data-category','Announcements');
+    if(title) script.setAttribute('data-title',title);
+  }
+  target.appendChild(script);
+}
+function renderDiscussion(){
+  const hint=document.getElementById('globalDiscussionHint');
+  const globalMount=document.getElementById('globalCommentMount');
+  const activeItem=getActiveDiscussionItem();
+  if(activeItem){
+    if(globalMount) globalMount.innerHTML='';
+    if(hint){
+      hint.innerHTML=`当前正在查看「${esc(activeItem.name)}」的评论。<button class="comment-switch-btn" onclick="resetDiscussion()">回到总留言区</button>`;
+    }
+    mountGiscus(document.getElementById('cardDiscussionMount'),{
+      mapping:'specific',
+      term:getDiscussionTerm(activeItem),
+      title:`${activeItem.name} · ${activeItem.region}${activeItem.area && activeItem.area!=='其他' ? ' · '+activeItem.area : ''}`
+    });
+    return;
+  }
+  if(hint) hint.textContent='想给某一家单独留言，可以先点开对应卡片里的「评论留言」。';
+  mountGiscus(globalMount,{mapping:'pathname'});
+}
 
 // ── Modal / CRUD ──
 let _editMode=null; // null=add, {source:'sync',key:'...'} or {source:'user',id:'...'}

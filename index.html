@@ -194,6 +194,37 @@ body{
 .card-recommend.active{background:var(--primary);color:#FFF}
 .card-discussion-actions{
   display:flex;align-items:center;gap:8px;margin-top:14px;
+  flex-wrap:wrap;
+}
+.card-like-btn{
+  appearance:none;border:none;border-radius:999px;
+  padding:9px 10px 9px 14px;font-size:12px;font-weight:700;font-family:inherit;
+  background:#F5EEE6;color:var(--dark);cursor:pointer;transition:all 0.22s ease;
+  box-shadow:inset 0 0 0 1px #E9D8CB;
+  display:inline-flex;align-items:center;gap:10px;
+}
+.card-like-btn:hover{
+  transform:translateY(-1px);
+  background:#F0E2D4;
+  box-shadow:0 10px 22px rgba(196,87,58,0.12);
+}
+.card-like-btn.active{
+  background:linear-gradient(135deg,#D97757 0%,var(--primary) 100%);
+  color:#FFF;box-shadow:0 10px 24px rgba(196,87,58,0.22);
+}
+.like-btn-label{
+  display:inline-flex;align-items:center;gap:6px;
+}
+.like-count-badge{
+  min-width:24px;height:24px;padding:0 8px;border-radius:999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:#FFF;color:var(--primary);font-size:11px;font-weight:700;
+}
+.card-like-btn.active .like-count-badge{
+  background:rgba(255,255,255,0.18);color:#FFF;
+}
+.like-count-badge.has-likes{
+  box-shadow:inset 0 0 0 1px rgba(196,87,58,0.12);
 }
 .card-comment-btn,.comment-switch-btn{
   appearance:none;border:none;border-radius:999px;
@@ -221,6 +252,95 @@ body{
 }
 .comment-count-badge.has-comments{
   background:#FFF;color:var(--primary);
+}
+.firebase-discussion{
+  display:flex;flex-direction:column;gap:14px;
+}
+.firebase-discussion-toolbar{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.firebase-discussion-user{
+  display:flex;align-items:center;gap:10px;min-width:0;
+}
+.firebase-user-avatar,.firebase-user-avatar-fallback{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+}
+.firebase-user-avatar{
+  object-fit:cover;background:#EEE;
+}
+.firebase-user-avatar-fallback{
+  display:flex;align-items:center;justify-content:center;
+  background:var(--sage-light);color:var(--sage);font-size:13px;font-weight:700;
+}
+.firebase-user-meta{
+  min-width:0;
+}
+.firebase-user-name{
+  font-size:13px;font-weight:700;color:var(--dark);
+}
+.firebase-user-note{
+  font-size:12px;color:var(--muted);line-height:1.5;
+}
+.firebase-toolbar-actions{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.firebase-auth-btn,.firebase-submit-btn,.firebase-logout-btn{
+  appearance:none;border:none;border-radius:999px;padding:9px 14px;
+  font:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s ease;
+}
+.firebase-auth-btn,.firebase-submit-btn{
+  background:var(--dark);color:#FFF;
+}
+.firebase-auth-btn:hover,.firebase-submit-btn:hover{
+  transform:translateY(-1px);
+}
+.firebase-logout-btn{
+  background:var(--bg);color:var(--muted);border:1px solid var(--light-border);
+}
+.firebase-logout-btn:hover{
+  background:var(--light-border);color:var(--dark);
+}
+.firebase-discussion-box{
+  border:1px solid var(--light-border);border-radius:18px;background:#FFFCF8;padding:14px;
+}
+.firebase-discussion-box textarea{
+  width:100%;min-height:112px;resize:vertical;border:none;background:transparent;
+  outline:none;font:inherit;font-size:14px;line-height:1.7;color:var(--dark);
+}
+.firebase-discussion-box textarea::placeholder{color:#B7A596}
+.firebase-discussion-box-footer{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;
+}
+.firebase-discussion-tip{
+  font-size:12px;color:var(--muted);line-height:1.6;
+}
+.firebase-comment-list{
+  display:flex;flex-direction:column;gap:10px;
+}
+.firebase-comment{
+  border:1px solid var(--light-border);border-radius:18px;background:#FFF;padding:14px 15px;
+}
+.firebase-comment-header{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px;
+}
+.firebase-comment-author{
+  display:flex;align-items:center;gap:10px;min-width:0;
+}
+.firebase-comment-meta{
+  min-width:0;
+}
+.firebase-comment-time{
+  font-size:11px;color:var(--muted);
+}
+.firebase-comment-body{
+  font-size:14px;line-height:1.7;color:var(--dark);word-break:break-word;
+}
+.firebase-comment-empty,.firebase-comment-loading,.firebase-comment-error{
+  border:1px dashed var(--light-border);border-radius:18px;padding:16px;
+  font-size:13px;line-height:1.7;color:var(--muted);background:#FFF;
+}
+.firebase-comment-error{
+  border-color:#E3C5BB;background:#FFF7F4;color:#B45A40;
 }
 .card-discussion{
   margin-top:14px;padding-top:14px;border-top:1px solid var(--light-border);
@@ -550,7 +670,7 @@ body{
   <div class="recommend-banner-inner">
     <div class="recommend-banner-copy">
       <div class="recommend-banner-title">有私藏小店想推荐？</div>
-      <div class="recommend-banner-desc">阅读评论不用登录；发表评论需要 GitHub 账号授权。推荐入口已经前移，不用滑到页尾。</div>
+      <div class="recommend-banner-desc" id="recommendBannerDesc">阅读评论不用登录；发表评论需要 GitHub 账号授权。推荐入口已经前移，不用滑到页尾。</div>
     </div>
     <button class="recommend-banner-btn" id="openGlobalDiscussionBtn" onclick="toggleGlobalDiscussion()">
       <span>推荐新店</span>
@@ -636,6 +756,7 @@ body{
   </div>
 </div>
 
+<script src="firebase-config.js"></script>
 <script src="data.js"></script>
 <script>
 // DATA is loaded from external data.js (auto-generated by sync.sh)
@@ -656,6 +777,7 @@ const REGIONS = [
 const READONLY = true;
 const DISCUSSION_COUNTS_URL = 'discussion-counts.json';
 const DISCUSSION_COUNT_LS_KEY = 'foodie_discussion_counts';
+const LIKE_STATE_LS_KEY = 'foodie_place_likes';
 const GLOBAL_DISCUSSION_KEY = '__global__';
 const GISCUS_CONFIG = {
   repo: 'elinking-111/foodie-project',
@@ -726,6 +848,14 @@ let activeDiscussionTerm=null;
 let globalDiscussionOpen=false;
 let discussionCounts={};
 let discussionLocalCounts={};
+let likeState={};
+let firebaseCommentBridge=null;
+let firebaseCommentState={ready:false,configured:false,user:null,comments:[],likes:{},likedThreadKeys:[],likePendingKeys:[],error:null,loading:true,loginPending:false,postPending:false};
+let firebaseThreadCounts={};
+let firebaseThreadComments={};
+let firebaseThreadLikes={};
+let firebaseLikedThreads={};
+let discussionDrafts={};
 
 function getDistrictsForRegion(region){
   if(region!=='北京') return [];
@@ -769,7 +899,9 @@ function updateStats(){
 function init(){
   loadState();
   loadDiscussionCountCache();
+  loadLikeState();
   updateStats();
+  initFirebaseCommentBridge();
 
   // Region filters
   const regionWrap=document.getElementById('regionFilters');
@@ -950,7 +1082,11 @@ function render(){
     const discussionTerm=getDiscussionTerm(d);
     const discussionOpen=activeDiscussionTerm===discussionTerm;
     const discussionCount=getDiscussionCount(discussionTerm);
+    const likeCount=getLikeCount(discussionTerm);
+    const liked=hasLiked(discussionTerm);
+    const likePending=useFirebaseComments() && isLikePending(discussionTerm);
     html+='<div class="card-discussion-actions">';
+    html+=`<button class="card-like-btn${liked?' active':''}" onclick="toggleThumb(${idx})" aria-pressed="${liked?'true':'false'}" ${likePending?'disabled':''}><span class="like-btn-label">&#128077; ${likePending?'处理中...':liked?'已点赞':'觉得不错'}</span><span class="like-count-badge${likeCount>0?' has-likes':''}">${likeCount}</span></button>`;
     html+=`<button class="card-comment-btn${discussionOpen?' active':''}" data-discussion-term="${esc(discussionTerm)}" onclick="toggleDiscussion(${idx})"><span class="comment-btn-label">&#x1F4AC; ${discussionOpen?'收起评论':'评论留言'}</span><span class="comment-count-badge${discussionCount>0?' has-comments':''}">${discussionCount}</span></button>`;
     html+='</div>';
     if(discussionOpen){
@@ -991,6 +1127,24 @@ window.toggleStar=function(idx){
   setState(d,{star:!current});
   render();
 };
+window.toggleThumb=function(idx){
+  const d=window._filtered[idx];
+  const term=getDiscussionTerm(d);
+  if(useFirebaseComments()){
+    if(!firebaseCommentBridge) return;
+    firebaseCommentBridge.toggleLike(term).catch(e=>{
+      alert((e && e.message) || '点赞失败');
+    });
+    return;
+  }
+  const current=getLikeSnapshot(term);
+  likeState[term]={
+    count: current.liked ? Math.max(0,current.count-1) : current.count+1,
+    liked: !current.liked,
+  };
+  saveLikeState();
+  render();
+};
 window.toggleDiscussion=function(idx){
   const d=window._filtered[idx];
   const term=getDiscussionTerm(d);
@@ -1025,15 +1179,78 @@ function getDiscussionMeta(d){
 function getActiveDiscussionItem(){
   return (window._filtered||[]).find(d=>getDiscussionTerm(d)===activeDiscussionTerm)||null;
 }
+function initFirebaseCommentBridge(){
+  const attach=()=>{
+    if(firebaseCommentBridge || !window.foodieComments) return;
+    firebaseCommentBridge=window.foodieComments;
+    firebaseCommentBridge.subscribe((state)=>{
+      firebaseCommentState=state;
+      rebuildFirebaseDiscussionIndex();
+      rebuildFirebaseLikeIndex();
+      render();
+    });
+  };
+  if(window.foodieComments) attach();
+  else window.addEventListener('foodie-comments-ready', attach, {once:true});
+}
+function useFirebaseComments(){
+  return !!firebaseCommentState.configured;
+}
+function rebuildFirebaseDiscussionIndex(){
+  const counts={};
+  const byThread={};
+  (firebaseCommentState.comments||[]).forEach(comment=>{
+    if(!comment || !comment.threadKey) return;
+    counts[comment.threadKey]=(counts[comment.threadKey]||0)+1;
+    if(!byThread[comment.threadKey]) byThread[comment.threadKey]=[];
+    byThread[comment.threadKey].push(comment);
+  });
+  Object.keys(byThread).forEach(key=>{
+    byThread[key].sort((a,b)=>(a.createdAtMs||0)-(b.createdAtMs||0));
+  });
+  firebaseThreadCounts=counts;
+  firebaseThreadComments=byThread;
+}
+function rebuildFirebaseLikeIndex(){
+  firebaseThreadLikes=Object.assign({},firebaseCommentState.likes||{});
+  firebaseLikedThreads={};
+  (firebaseCommentState.likedThreadKeys||[]).forEach(term=>{ firebaseLikedThreads[term]=true; });
+}
 function loadDiscussionCountCache(){
   try{ discussionLocalCounts=JSON.parse(localStorage.getItem(DISCUSSION_COUNT_LS_KEY))||{}; }
   catch(e){ discussionLocalCounts={}; }
   discussionCounts=Object.assign({},discussionLocalCounts);
 }
+function loadLikeState(){
+  try{ likeState=JSON.parse(localStorage.getItem(LIKE_STATE_LS_KEY))||{}; }
+  catch(e){ likeState={}; }
+}
+function saveLikeState(){
+  localStorage.setItem(LIKE_STATE_LS_KEY, JSON.stringify(likeState));
+}
+function getLikeSnapshot(term){
+  const current=likeState[term]||{};
+  return {
+    count: Math.max(0, Number(current.count)||0),
+    liked: !!current.liked,
+  };
+}
+function getLikeCount(term){
+  if(useFirebaseComments()) return firebaseThreadLikes[term]||0;
+  return getLikeSnapshot(term).count;
+}
+function hasLiked(term){
+  if(useFirebaseComments()) return !!firebaseLikedThreads[term];
+  return getLikeSnapshot(term).liked;
+}
+function isLikePending(term){
+  return !!((firebaseCommentState.likePendingKeys||[]).includes(term));
+}
 function saveDiscussionCountCache(){
   localStorage.setItem(DISCUSSION_COUNT_LS_KEY, JSON.stringify(discussionLocalCounts));
 }
 function getDiscussionCount(term){
+  if(useFirebaseComments()) return firebaseThreadCounts[term]||0;
   return Number.isFinite(discussionCounts[term]) ? discussionCounts[term] : 0;
 }
 function setDiscussionCount(term,count){
@@ -1070,12 +1287,19 @@ async function loadDiscussionCounts(){
 function updateGlobalDiscussionButton(activeItem){
   const btn=document.getElementById('openGlobalDiscussionBtn');
   const meta=document.getElementById('globalDiscussionMeta');
+  const desc=document.getElementById('recommendBannerDesc');
   if(!btn || !meta) return;
   const active=!activeItem && globalDiscussionOpen;
   btn.classList.toggle('active',active);
   meta.textContent=active?'已展开':'去留言区';
+  if(desc){
+    desc.textContent=useFirebaseComments()
+      ? '阅读评论不用登录；发表评论支持 Google 账号授权。推荐入口已经前移，不用滑到页尾。'
+      : '阅读评论不用登录；发表评论需要 GitHub 账号授权。推荐入口已经前移，不用滑到页尾。';
+  }
 }
 function handleGiscusMessage(event){
+  if(useFirebaseComments()) return;
   if(event.origin!=='https://giscus.app') return;
   const payload=event.data && event.data.giscus;
   const count=payload && payload.discussion && typeof payload.discussion.totalCommentCount==='number'
@@ -1111,6 +1335,123 @@ function mountGiscus(target,{mapping,term,title}){
   }
   target.appendChild(script);
 }
+function getCurrentDiscussionTerm(){
+  return activeDiscussionTerm || (globalDiscussionOpen ? GLOBAL_DISCUSSION_KEY : null);
+}
+function formatCommentTime(ms){
+  if(!ms) return '刚刚';
+  const d=new Date(ms);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function getUserInitial(name){
+  return (name||'U').trim().slice(0,1).toUpperCase();
+}
+function escWithBreaks(s){
+  return esc(s).replace(/\n/g,'<br>');
+}
+function renderCommentAuthor(user,nameClass='firebase-user-name'){
+  const displayName=user && (user.displayName || user.email || 'Google 用户');
+  const avatar=user && user.photoURL;
+  return `${avatar?`<img class="firebase-user-avatar" src="${esc(avatar)}" alt="${esc(displayName)}">`:`<div class="firebase-user-avatar-fallback">${esc(getUserInitial(displayName))}</div>`}<div class="firebase-user-meta"><div class="${nameClass}">${esc(displayName)}</div></div>`;
+}
+function renderFirebaseDiscussion(target,{term,title}){
+  if(!target) return;
+  const comments=firebaseThreadComments[term]||[];
+  const user=firebaseCommentState.user;
+  const draft=discussionDrafts[term]||'';
+  let html='<div class="firebase-discussion">';
+  if(firebaseCommentState.error){
+    html+=`<div class="firebase-comment-error">${esc(firebaseCommentState.error)}</div>`;
+  }
+  html+='<div class="firebase-discussion-toolbar">';
+  html+='<div class="firebase-discussion-user">';
+  if(user){
+    html+=renderCommentAuthor(user);
+    html+=`<div class="firebase-user-note">已登录，可直接评论。Google 头像和昵称会随评论展示。</div>`;
+  } else {
+    html+='<div class="firebase-user-avatar-fallback">G</div>';
+    html+='<div class="firebase-user-meta"><div class="firebase-user-name">Google 登录后可评论</div><div class="firebase-user-note">阅读评论不需要登录。当前 MVP 仅支持 Google 登录发评论。</div></div>';
+  }
+  html+='</div>';
+  html+='<div class="firebase-toolbar-actions">';
+  if(user){
+    html+=`<button class="firebase-logout-btn" onclick="logoutDiscussion()" ${firebaseCommentState.loginPending||firebaseCommentState.postPending?'disabled':''}>退出</button>`;
+  } else {
+    html+=`<button class="firebase-auth-btn" onclick="loginForDiscussion()" ${firebaseCommentState.loginPending?'disabled':''}>Google 登录</button>`;
+  }
+  html+='</div></div>';
+  if(user){
+    html+='<div class="firebase-discussion-box">';
+    html+=`<textarea id="discussionComposer" oninput="updateDiscussionDraft(this.value)" placeholder="写下你的体验、推荐理由、避雷提示...">${esc(draft)}</textarea>`;
+    html+='<div class="firebase-discussion-box-footer">';
+    html+=`<div class="firebase-discussion-tip">评论会显示在「${esc(title)}」下，并同步更新按钮上的数字。</div>`;
+    html+=`<button class="firebase-submit-btn" onclick="submitDiscussionComment()" ${firebaseCommentState.postPending?'disabled':''}>${firebaseCommentState.postPending?'发布中...':'发布评论'}</button>`;
+    html+='</div></div>';
+  }
+  if(firebaseCommentState.loading && !comments.length){
+    html+='<div class="firebase-comment-loading">正在加载评论...</div>';
+  } else if(!comments.length){
+    html+='<div class="firebase-comment-empty">还没有评论，来留第一条。</div>';
+  } else {
+    html+='<div class="firebase-comment-list">';
+    comments.forEach(comment=>{
+      const authorName=comment.authorName || '匿名用户';
+      const avatar=comment.authorPhotoURL;
+      html+='<div class="firebase-comment">';
+      html+='<div class="firebase-comment-header">';
+      html+='<div class="firebase-comment-author">';
+      html+=avatar?`<img class="firebase-user-avatar" src="${esc(avatar)}" alt="${esc(authorName)}">`:`<div class="firebase-user-avatar-fallback">${esc(getUserInitial(authorName))}</div>`;
+      html+=`<div class="firebase-comment-meta"><div class="firebase-user-name">${esc(authorName)}</div><div class="firebase-comment-time">${esc(formatCommentTime(comment.createdAtMs))}</div></div>`;
+      html+='</div></div>';
+      html+=`<div class="firebase-comment-body">${escWithBreaks(comment.body||'')}</div>`;
+      html+='</div>';
+    });
+    html+='</div>';
+  }
+  html+='</div>';
+  target.innerHTML=html;
+}
+window.updateDiscussionDraft=function(value){
+  const term=getCurrentDiscussionTerm();
+  if(!term) return;
+  discussionDrafts[term]=value;
+};
+window.loginForDiscussion=async function(){
+  if(!firebaseCommentBridge) return;
+  try{ await firebaseCommentBridge.login(); }
+  catch(e){}
+};
+window.logoutDiscussion=async function(){
+  if(!firebaseCommentBridge) return;
+  try{ await firebaseCommentBridge.logout(); }
+  catch(e){}
+};
+window.submitDiscussionComment=async function(){
+  if(!firebaseCommentBridge || !firebaseCommentState.user) return;
+  const term=getCurrentDiscussionTerm();
+  const textarea=document.getElementById('discussionComposer');
+  const body=(textarea ? textarea.value : discussionDrafts[term]||'').trim();
+  if(!term || !body){ alert('请输入评论内容'); return; }
+  const activeItem=getActiveDiscussionItem();
+  const payload={
+    threadKey: term,
+    body,
+    scope: activeItem ? 'place' : 'global',
+    place: activeItem ? {
+      name: activeItem.name,
+      region: activeItem.region,
+      area: activeItem.area,
+      cat: activeItem.cat,
+    } : null,
+  };
+  try{
+    await firebaseCommentBridge.postComment(payload);
+    discussionDrafts[term]='';
+    if(textarea) textarea.value='';
+  }catch(e){
+    alert((e && e.message) || '评论发布失败');
+  }
+};
 function renderDiscussion(){
   const shell=document.getElementById('globalDiscussionShell');
   const hint=document.getElementById('globalDiscussionHint');
@@ -1123,11 +1464,18 @@ function renderDiscussion(){
     if(hint){
       hint.innerHTML=`<strong>当前正在查看「${esc(activeItem.name)}」的评论。</strong> <button class="comment-switch-btn" onclick="resetDiscussion()">切回推荐留言区</button>`;
     }
-    mountGiscus(document.getElementById('cardDiscussionMount'),{
-      mapping:'specific',
-      term:getDiscussionTerm(activeItem),
-      title:`${activeItem.name} · ${activeItem.region}${activeItem.area && activeItem.area!=='其他' ? ' · '+activeItem.area : ''}`
-    });
+    if(useFirebaseComments()){
+      renderFirebaseDiscussion(document.getElementById('cardDiscussionMount'),{
+        term:getDiscussionTerm(activeItem),
+        title:`${activeItem.name} · ${activeItem.region}${activeItem.area && activeItem.area!=='其他' ? ' · '+activeItem.area : ''}`
+      });
+    } else {
+      mountGiscus(document.getElementById('cardDiscussionMount'),{
+        mapping:'specific',
+        term:getDiscussionTerm(activeItem),
+        title:`${activeItem.name} · ${activeItem.region}${activeItem.area && activeItem.area!=='其他' ? ' · '+activeItem.area : ''}`
+      });
+    }
     return;
   }
   if(shell) shell.classList.toggle('show',globalDiscussionOpen);
@@ -1136,8 +1484,13 @@ function renderDiscussion(){
     if(hint) hint.textContent='';
     return;
   }
-  if(hint) hint.innerHTML='<strong>推荐新店格式：</strong> 店名 + 区域 + 一句话点评。阅读评论不用登录，发表评论需要 GitHub 账号。';
-  mountGiscus(globalMount,{mapping:'pathname'});
+  if(useFirebaseComments()){
+    if(hint) hint.innerHTML='<strong>推荐新店格式：</strong> 店名 + 区域 + 一句话点评。阅读评论不用登录，发表评论支持 Google 登录。';
+    renderFirebaseDiscussion(globalMount,{term:GLOBAL_DISCUSSION_KEY,title:'推荐新店留言区'});
+  } else {
+    if(hint) hint.innerHTML='<strong>推荐新店格式：</strong> 店名 + 区域 + 一句话点评。阅读评论不用登录，发表评论需要 GitHub 账号。';
+    mountGiscus(globalMount,{mapping:'pathname'});
+  }
 }
 
 // ── Modal / CRUD ──
@@ -1445,5 +1798,6 @@ window.mapJump=function(target){
 
 document.addEventListener('DOMContentLoaded',init);
 </script>
+<script type="module" src="firebase-comments.js"></script>
 </body>
 </html>

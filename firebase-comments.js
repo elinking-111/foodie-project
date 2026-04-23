@@ -137,6 +137,27 @@ function setLikePending(threadKey, pending) {
   setState({ likePendingKeys: Array.from(next) });
 }
 
+function applyOptimisticLike(threadKey, liked) {
+  const likes = { ...(state.likes || {}) };
+  const likedThreadKeys = new Set(state.likedThreadKeys || []);
+  const currentlyLiked = likedThreadKeys.has(threadKey);
+
+  if (liked === currentlyLiked) return;
+
+  if (liked) {
+    likes[threadKey] = (Number(likes[threadKey]) || 0) + 1;
+    likedThreadKeys.add(threadKey);
+  } else {
+    likes[threadKey] = Math.max(0, (Number(likes[threadKey]) || 0) - 1);
+    likedThreadKeys.delete(threadKey);
+  }
+
+  setState({
+    likes,
+    likedThreadKeys: Array.from(likedThreadKeys),
+  });
+}
+
 async function ensureReady() {
   await readyPromise;
   if (!IS_CONFIGURED) throw new Error("Firebase 未配置");
@@ -248,18 +269,25 @@ const api = {
     await ensureReady();
     const normalizedThreadKey = String(threadKey || "");
     if (!normalizedThreadKey) throw new Error("点赞目标无效");
+    if ((state.likePendingKeys || []).includes(normalizedThreadKey)) return;
 
-    const viewer = await ensureViewerSession();
-    const uid = viewer && viewer.uid;
-    if (!uid) throw new Error("点赞身份初始化失败");
-
+    const wasLiked = (state.likedThreadKeys || []).includes(normalizedThreadKey);
+    const shouldLike = !wasLiked;
     setLikePending(normalizedThreadKey, true);
+    applyOptimisticLike(normalizedThreadKey, shouldLike);
     setState({ error: null });
-    try {
-      const likeRef = firestoreModuleRef.doc(db, "likes", getLikeDocId(uid, normalizedThreadKey));
-      const liked = (state.likedThreadKeys || []).includes(normalizedThreadKey);
 
-      if (liked) {
+    try {
+      const viewer = await ensureViewerSession();
+      const uid = viewer && viewer.uid;
+      if (!uid) throw new Error("点赞身份初始化失败");
+
+      // Auth state changes can arrive before the write finishes, so keep the button responsive.
+      applyOptimisticLike(normalizedThreadKey, shouldLike);
+
+      const likeRef = firestoreModuleRef.doc(db, "likes", getLikeDocId(uid, normalizedThreadKey));
+
+      if (wasLiked) {
         await firestoreModuleRef.deleteDoc(likeRef);
       } else {
         await firestoreModuleRef.setDoc(likeRef, {
@@ -269,6 +297,7 @@ const api = {
         });
       }
     } catch (error) {
+      applyOptimisticLike(normalizedThreadKey, wasLiked);
       const friendly = new Error("点赞失败，请稍后再试");
       setState({ error: friendly.message });
       throw friendly;

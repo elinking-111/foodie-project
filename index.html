@@ -441,8 +441,9 @@ body{
 
 /* Recommend section */
 .community-qr{
-  max-width:1200px;margin:16px auto 0;padding:0 24px;
+  display:none;max-width:1200px;margin:16px auto 0;padding:0 24px;
 }
+.community-qr.show{display:block}
 .community-qr-card{
   display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:24px;align-items:center;
   background:rgba(255,252,248,0.86);
@@ -723,7 +724,7 @@ body{
 </div>
 </div><!-- end sticky-bar -->
 
-<div class="community-qr">
+<div class="community-qr" id="communityQr">
   <div class="community-qr-card">
     <div class="community-qr-copy">
       <div class="community-qr-kicker">AI 学习搭子</div>
@@ -781,7 +782,7 @@ body{
 </div>
 
 <button class="fab" onclick="openModal()" id="fabBtn" title="添加新地点" style="display:none">+</button>
-<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
+<button class="scroll-top" id="scrollTop" onclick="handleScrollTopAction()">&#8593;</button>
 
 <!-- CRUD Modal -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
@@ -864,6 +865,7 @@ const GISCUS_CONFIG = {
   theme: 'light_protanopia',
   lang: 'zh-CN',
 };
+let communityQrVisible=false;
 
 const CAT_EMOJI={}, CAT_LABEL={};
 CATEGORIES.forEach(c=>{ if(c.key!=='all'){CAT_EMOJI[c.key]=c.emoji; CAT_LABEL[c.key]=c.label;} });
@@ -973,11 +975,24 @@ function updateStats(){
   document.getElementById('statPlay').textContent=md.filter(d=>d.region==="中国").length;
   document.getElementById('statTravel').textContent=md.filter(d=>d.region==="海外").length;
 }
+function updateCommunityQrVisibility(){
+  const node=document.getElementById('communityQr');
+  if(!node) return;
+  node.classList.toggle('show',communityQrVisible);
+}
+window.handleScrollTopAction=function(){
+  if(!communityQrVisible){
+    communityQrVisible=true;
+    updateCommunityQrVisibility();
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+};
 function init(){
   loadState();
   loadDiscussionCountCache();
   loadLikeState();
   updateStats();
+  updateCommunityQrVisibility();
   initFirebaseCommentBridge();
 
   // Region filters

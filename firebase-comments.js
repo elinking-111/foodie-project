@@ -17,6 +17,8 @@ let state = {
   user: null,
   viewerUid: null,
   comments: [],
+  placeEdits: {},
+  placeAdds: [],
   likes: {},
   likedThreadKeys: [],
   likePendingKeys: [],
@@ -35,6 +37,10 @@ function cloneState() {
   return {
     ...state,
     comments: (state.comments || []).map((comment) => ({ ...comment })),
+    placeEdits: Object.fromEntries(
+      Object.entries(state.placeEdits || {}).map(([key, value]) => [key, { ...value }])
+    ),
+    placeAdds: (state.placeAdds || []).map((item) => ({ ...item })),
     likes: { ...(state.likes || {}) },
     likedThreadKeys: [...(state.likedThreadKeys || [])],
     likePendingKeys: [...(state.likePendingKeys || [])],
@@ -110,6 +116,39 @@ function normalizeLike(doc) {
     id: doc.id,
     threadKey: String(data.threadKey || ""),
     authorUid: String(data.authorUid || ""),
+  };
+}
+
+function normalizePlacePayload(data) {
+  return {
+    name: String(data.name || "").trim(),
+    nameEn: String(data.nameEn || "").trim(),
+    cat: String(data.cat || "restaurant").trim(),
+    region: String(data.region || "北京").trim(),
+    area: String(data.area || "其他").trim(),
+    desc: String(data.desc || "").trim(),
+    star: !!data.star,
+    tags: Array.isArray(data.tags)
+      ? data.tags.map((tag) => String(tag || "").trim()).filter(Boolean).slice(0, 20)
+      : [],
+  };
+}
+
+function normalizePlaceEdit(doc) {
+  const data = doc.data() || {};
+  return {
+    id: doc.id,
+    sourceKey: String(data.sourceKey || doc.id || ""),
+    deleted: !!data.deleted,
+    ...normalizePlacePayload(data),
+  };
+}
+
+function normalizePlaceAdd(doc) {
+  const data = doc.data() || {};
+  return {
+    id: doc.id,
+    ...normalizePlacePayload(data),
   };
 }
 
@@ -309,6 +348,82 @@ const api = {
       setLikePending(normalizedThreadKey, false);
     }
   },
+  async savePlace(payload) {
+    await ensureReady();
+    if (!auth || !auth.currentUser || auth.currentUser.isAnonymous) throw new Error("请先使用 Google 登录");
+    const user = auth.currentUser;
+    const email = String(user.email || "").toLowerCase();
+    if (email !== "elinking@gmail.com") throw new Error("当前账号没有编辑权限");
+
+    const mode = payload && payload.mode === "sync" ? "sync" : "add";
+    const item = normalizePlacePayload(payload && payload.item ? payload.item : {});
+    if (!item.name) throw new Error("请输入名称");
+
+    try {
+      if (mode === "sync") {
+        const sourceKey = String(payload && payload.sourceKey ? payload.sourceKey : "").trim();
+        if (!sourceKey) throw new Error("编辑目标无效");
+        await firestoreModuleRef.setDoc(firestoreModuleRef.doc(db, "placeEdits", sourceKey), {
+          sourceKey,
+          deleted: false,
+          ...item,
+          updatedAt: firestoreModuleRef.serverTimestamp(),
+          updatedByUid: user.uid,
+          updatedByEmail: user.email || "",
+        });
+        return { id: sourceKey, mode };
+      }
+
+      const id = String(payload && payload.id ? payload.id : "").trim();
+      if (!id) throw new Error("新增条目标识无效");
+      await firestoreModuleRef.setDoc(firestoreModuleRef.doc(db, "placeAdds", id), {
+        ...item,
+        createdAt: firestoreModuleRef.serverTimestamp(),
+        updatedAt: firestoreModuleRef.serverTimestamp(),
+        updatedByUid: user.uid,
+        updatedByEmail: user.email || "",
+      }, { merge: true });
+      return { id, mode };
+    } catch (error) {
+      const code = error && error.code ? String(error.code) : "";
+      const friendly = new Error(code === "permission-denied" ? "保存被 Firestore 规则拦截，请先发布最新规则" : "保存餐厅失败，请稍后再试");
+      setState({ error: friendly.message });
+      throw friendly;
+    }
+  },
+  async deletePlace(payload) {
+    await ensureReady();
+    if (!auth || !auth.currentUser || auth.currentUser.isAnonymous) throw new Error("请先使用 Google 登录");
+    const user = auth.currentUser;
+    const email = String(user.email || "").toLowerCase();
+    if (email !== "elinking@gmail.com") throw new Error("当前账号没有编辑权限");
+
+    const mode = payload && payload.mode === "sync" ? "sync" : "add";
+    try {
+      if (mode === "sync") {
+        const sourceKey = String(payload && payload.sourceKey ? payload.sourceKey : "").trim();
+        if (!sourceKey) throw new Error("删除目标无效");
+        await firestoreModuleRef.setDoc(firestoreModuleRef.doc(db, "placeEdits", sourceKey), {
+          sourceKey,
+          deleted: true,
+          updatedAt: firestoreModuleRef.serverTimestamp(),
+          updatedByUid: user.uid,
+          updatedByEmail: user.email || "",
+        }, { merge: true });
+        return { id: sourceKey, mode };
+      }
+
+      const id = String(payload && payload.id ? payload.id : "").trim();
+      if (!id) throw new Error("删除目标无效");
+      await firestoreModuleRef.deleteDoc(firestoreModuleRef.doc(db, "placeAdds", id));
+      return { id, mode };
+    } catch (error) {
+      const code = error && error.code ? String(error.code) : "";
+      const friendly = new Error(code === "permission-denied" ? "删除被 Firestore 规则拦截，请先发布最新规则" : "删除餐厅失败，请稍后再试");
+      setState({ error: friendly.message });
+      throw friendly;
+    }
+  },
 };
 
 window.foodieComments = api;
@@ -373,6 +488,34 @@ async function bootstrap() {
       (error) => {
         console.error("[foodie-comments] likes snapshot failed", error);
         setState({ error: "点赞加载失败，请稍后刷新重试" });
+      }
+    );
+
+    firestoreModule.onSnapshot(
+      firestoreModule.collection(db, "placeEdits"),
+      (snapshot) => {
+        const edits = {};
+        snapshot.docs.map(normalizePlaceEdit).forEach((entry) => {
+          if (!entry.sourceKey) return;
+          edits[entry.sourceKey] = entry;
+        });
+        setState({ placeEdits: edits });
+      },
+      (error) => {
+        console.error("[foodie-comments] place edits snapshot failed", error);
+        setState({ placeEdits: {} });
+      }
+    );
+
+    firestoreModule.onSnapshot(
+      firestoreModule.collection(db, "placeAdds"),
+      (snapshot) => {
+        const placeAdds = snapshot.docs.map(normalizePlaceAdd).filter((entry) => entry.id && entry.name);
+        setState({ placeAdds });
+      },
+      (error) => {
+        console.error("[foodie-comments] place adds snapshot failed", error);
+        setState({ placeAdds: [] });
       }
     );
 

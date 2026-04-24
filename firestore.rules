@@ -2,6 +2,12 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email is string
+        && request.auth.token.email == 'elinking@gmail.com';
+    }
+
     match /comments/{commentId} {
       allow read: if true;
       allow create: if request.auth != null
@@ -24,6 +30,16 @@ service cloud.firestore {
       allow delete: if request.auth != null
         && resource.data.authorUid == request.auth.uid;
       allow update: if false;
+    }
+
+    match /placeEdits/{editId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /placeAdds/{addId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
   }
 }

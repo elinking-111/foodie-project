@@ -493,6 +493,20 @@ body{
   text-align:center;padding:40px 24px;
   font-size:12px;color:var(--muted);letter-spacing:1px;
 }
+.admin-auth-bar{
+  margin:0 auto 12px;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.admin-auth-note{
+  font-size:12px;color:#8F7F71;letter-spacing:0;
+}
+.admin-auth-btn{
+  appearance:none;border:none;border-radius:999px;padding:8px 14px;
+  background:rgba(42,31,26,0.08);color:var(--dark);font:inherit;font-size:12px;font-weight:700;cursor:pointer;
+  transition:background 0.2s ease, transform 0.2s ease;
+}
+.admin-auth-btn:hover{
+  background:rgba(42,31,26,0.12);transform:translateY(-1px);
+}
 
 /* Scroll to top */
 .scroll-top{
@@ -741,6 +755,7 @@ body{
 </div>
 
 <div class="footer">
+  <div class="admin-auth-bar" id="adminAuthBar"></div>
   <span id="footerText">EAT &middot; DRINK &middot; EXPLORE &middot; TRAVEL</span>
   <br><button class="btn-export" onclick="exportData()" style="margin-top:12px" id="exportBtn">导出数据 (data.js)</button>
 </div>
@@ -855,6 +870,7 @@ const READONLY = false;
 const DISCUSSION_COUNTS_URL = 'discussion-counts.json';
 const DISCUSSION_COUNT_LS_KEY = 'foodie_discussion_counts';
 const LIKE_STATE_LS_KEY = 'foodie_place_likes';
+const ADMIN_EMAILS = ['elinking@gmail.com'];
 const GLOBAL_DISCUSSION_KEY = '__global__';
 const GISCUS_CONFIG = {
   repo: 'elinking-111/foodie-project',
@@ -891,11 +907,22 @@ function generateItemId(){ return 'user_'+Date.now()+'_'+Math.random().toString(
 
 function getMergedData(){
   const ud=loadUserData();
-  let merged=DATA.filter(d=>!ud.deleted.includes(itemKey(d)));
-  merged=merged.map(d=>{
-    const edits=ud.edited[itemKey(d)];
-    return edits?Object.assign({},d,edits,{_source:'sync'}):Object.assign({},d,{_source:'sync'});
+  let merged=DATA.filter(d=>{
+    const key=itemKey(d);
+    const remoteEdit=firebasePlaceEdits[key];
+    if(remoteEdit && remoteEdit.deleted) return false;
+    return !ud.deleted.includes(key);
   });
+  merged=merged.map(d=>{
+    const key=itemKey(d);
+    const remoteEdit=firebasePlaceEdits[key];
+    const base=remoteEdit
+      ? Object.assign({},d,extractFirebasePlaceItem(remoteEdit),{_source:'sync',_sourceKey:key})
+      : Object.assign({},d,{_source:'sync',_sourceKey:key});
+    const edits=ud.edited[key];
+    return edits?Object.assign({},base,edits,{_source:'sync',_sourceKey:key}):base;
+  });
+  firebasePlaceAdds.forEach(d=>merged.push(Object.assign({},extractFirebasePlaceItem(d),{_source:'user',_id:d.id})));
   ud.added.forEach(d=>merged.push(Object.assign({},d,{_source:'user'})));
   return merged;
 }
@@ -935,7 +962,58 @@ let firebaseThreadCounts={};
 let firebaseThreadComments={};
 let firebaseThreadLikes={};
 let firebaseLikedThreads={};
+let firebasePlaceEdits={};
+let firebasePlaceAdds=[];
 let discussionDrafts={};
+
+function normalizeAdminEmail(email){
+  return String(email||'').trim().toLowerCase();
+}
+function isAdminEmail(email){
+  return ADMIN_EMAILS.includes(normalizeAdminEmail(email));
+}
+function isAdminUser(){
+  return !!(firebaseCommentState.user && isAdminEmail(firebaseCommentState.user.email));
+}
+function canManagePlaces(){
+  return useFirebaseComments() && isAdminUser();
+}
+function extractFirebasePlaceItem(item){
+  return {
+    name: item.name || '',
+    nameEn: item.nameEn || '',
+    cat: item.cat || 'restaurant',
+    region: item.region || PRIMARY_REGION,
+    area: item.area || OTHER_LABEL,
+    desc: item.desc || '',
+    star: !!item.star,
+    tags: Array.isArray(item.tags) ? item.tags : [],
+  };
+}
+function renderAdminAuthBar(){
+  const bar=document.getElementById('adminAuthBar');
+  if(!bar) return;
+  if(!useFirebaseComments()){
+    bar.innerHTML='';
+    return;
+  }
+  if(canManagePlaces()){
+    bar.innerHTML=`<span class="admin-auth-note">管理员已登录：${esc(firebaseCommentState.user.email||'')}</span><button class="admin-auth-btn" onclick="logoutDiscussion()">退出</button>`;
+    return;
+  }
+  if(firebaseCommentState.user){
+    bar.innerHTML=`<span class="admin-auth-note">当前账号 ${esc(firebaseCommentState.user.email||'')} 没有编辑权限</span><button class="admin-auth-btn" onclick="logoutDiscussion()">切换账号</button>`;
+    return;
+  }
+  bar.innerHTML='<button class="admin-auth-btn" onclick="loginForAdmin()">管理员登录后可编辑餐厅</button>';
+}
+function updateAdminUi(){
+  const fab=document.getElementById('fabBtn');
+  if(fab) fab.style.display=canManagePlaces() ? '' : 'none';
+  const eb=document.getElementById('exportBtn');
+  if(eb) eb.style.display='none';
+  renderAdminAuthBar();
+}
 
 function getDistrictsForRegion(region){
   if(region!==PRIMARY_REGION) return [];
@@ -1040,10 +1118,7 @@ function init(){
     catWrap.appendChild(btn);
   });
   buildDistrictFilters();
-  // Show FAB only when not readonly
-  if(!READONLY) document.getElementById('fabBtn').style.display='';
-  // Hide export button in readonly mode
-  if(READONLY) document.getElementById('exportBtn').style.display='none';
+  updateAdminUi();
   // Init status filter default
   document.querySelectorAll('.status-btn').forEach(b=>{ b.classList.toggle('active',b.dataset.status==='all'); });
   // Search
@@ -1202,7 +1277,7 @@ function render(){
       html+='<div class="card-discussion-mount" id="cardDiscussionMount"></div>';
       html+='</div>';
     }
-    if(!READONLY){
+    if(canManagePlaces()){
     html+='<div class="card-actions">';
     if(d._source==='user') html+='<span class="card-user-badge">'+UI.manual+'</span>';
     html+=`<button class="card-action-btn" onclick="openEditModal(${idx})" title="${UI.editTooltip}">&#9998;</button>`;
@@ -1294,6 +1369,9 @@ function initFirebaseCommentBridge(){
       firebaseCommentState=state;
       rebuildFirebaseDiscussionIndex();
       rebuildFirebaseLikeIndex();
+      firebasePlaceEdits=Object.assign({},state.placeEdits||{});
+      firebasePlaceAdds=(state.placeAdds||[]).map(item=>Object.assign({},item));
+      updateAdminUi();
       render();
     });
   };
@@ -1525,6 +1603,11 @@ window.loginForDiscussion=async function(){
   try{ await firebaseCommentBridge.login(); }
   catch(e){}
 };
+window.loginForAdmin=async function(){
+  if(!firebaseCommentBridge) return;
+  try{ await firebaseCommentBridge.login(); }
+  catch(e){}
+};
 window.logoutDiscussion=async function(){
   if(!firebaseCommentBridge) return;
   try{ await firebaseCommentBridge.logout(); }
@@ -1625,12 +1708,16 @@ window.updateAreaList=function(){
 };
 
 window.openModal=function(item){
+  if(!canManagePlaces()){
+    alert('请先用有权限的 Google 账号登录');
+    return;
+  }
   initModalSelects();
   const form=document.getElementById('modalForm');
   form.reset();
   if(item){
     // Edit mode
-    _editMode=item._source==='user'?{source:'user',id:item._id}:{source:'sync',key:itemKey(item)};
+    _editMode=item._source==='user'?{source:'user',id:item._id}:{source:'sync',key:item._sourceKey||itemKey(item)};
     document.getElementById('modalTitle').textContent=UI.editPlace;
     document.getElementById('fName').value=item.name||'';
     document.getElementById('fNameEn').value=item.nameEn||'';
@@ -1665,7 +1752,11 @@ window.openEditModal=function(idx){
   openModal(d);
 };
 
-window.saveModal=function(){
+window.saveModal=async function(){
+  if(!canManagePlaces() || !firebaseCommentBridge){
+    alert('请先用有权限的 Google 账号登录');
+    return;
+  }
   const name=document.getElementById('fName').value.trim();
   if(!name){alert(UI.alertNoName);return;}
   const item={
@@ -1679,62 +1770,43 @@ window.saveModal=function(){
     visited:document.getElementById('fVisited').checked,
     tags:document.getElementById('fTags').value.split(/[,，]/).map(s=>s.trim()).filter(Boolean),
   };
-  const ud=loadUserData();
-  if(!_editMode){
-    // Add new
-    item._id=generateItemId();
-    ud.added.push(item);
-    saveUserData(ud);
-    // Also set visited state
-    invalidateCache();
-    setState(item,{visited:item.visited});
-  } else if(_editMode.source==='user'){
-    // Edit user-added item
-    const idx=ud.added.findIndex(d=>d._id===_editMode.id);
-    if(idx>-1){
-      const oldKey=itemKey(ud.added[idx]);
+  try{
+    if(!_editMode){
+      item._id=generateItemId();
+      await firebaseCommentBridge.savePlace({mode:'add',id:item._id,item});
+    } else if(_editMode.source==='user'){
       item._id=_editMode.id;
-      ud.added[idx]=item;
-      saveUserData(ud);
-      invalidateCache();
-      // Update state key if name/region/area changed
-      const newKey=itemKey(item);
-      if(oldKey!==newKey && userState[oldKey]){
-        userState[newKey]=userState[oldKey];
-        delete userState[oldKey];
-        saveState();
-      }
-      setState(item,{visited:item.visited});
+      await firebaseCommentBridge.savePlace({mode:'add',id:_editMode.id,item});
+    } else {
+      await firebaseCommentBridge.savePlace({mode:'sync',sourceKey:_editMode.key,item});
     }
-  } else {
-    // Edit sync item — store as overlay
-    ud.edited[_editMode.key]=item;
-    saveUserData(ud);
-    invalidateCache();
-    setState(item,{visited:item.visited});
+    closeModal();
+    render();
+  }catch(e){
+    alert((e && e.message) || '保存失败');
   }
-  closeModal();
-  render();
 };
 
-window.deleteItem=function(idx){
+window.deleteItem=async function(idx){
+  if(!canManagePlaces() || !firebaseCommentBridge){
+    alert('请先用有权限的 Google 账号登录');
+    return;
+  }
   const d=window._filtered[idx];
   if(!confirm(UI.confirmDeletePrefix+d.name+UI.confirmDeleteSuffix)) return;
-  const ud=loadUserData();
-  if(d._source==='user'&&d._id){
-    ud.added=ud.added.filter(a=>a._id!==d._id);
-  } else {
-    const key=itemKey(d);
-    if(!ud.deleted.includes(key)) ud.deleted.push(key);
-    // Also remove any edits for this item
-    delete ud.edited[key];
+  try{
+    if(d._source==='user'&&d._id){
+      await firebaseCommentBridge.deletePlace({mode:'add',id:d._id});
+    } else {
+      await firebaseCommentBridge.deletePlace({mode:'sync',sourceKey:d._sourceKey||itemKey(d)});
+    }
+    delete userState[itemKey(d)];
+    saveState();
+    invalidateCache();
+    render();
+  }catch(e){
+    alert((e && e.message) || '删除失败');
   }
-  saveUserData(ud);
-  // Clean up user state
-  delete userState[itemKey(d)];
-  saveState();
-  invalidateCache();
-  render();
 };
 
 window.exportData=function(){

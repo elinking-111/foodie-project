@@ -170,7 +170,11 @@ function userFacingError(error, fallback) {
   if (code === "auth/popup-blocked") return new Error("登录弹窗被浏览器拦截，请允许弹窗后重试");
   if (code === "auth/cancelled-popup-request") return null;
   if (code === "auth/admin-restricted-operation") return new Error("请先在 Firebase 后台开启对应登录方式");
-  return new Error(fallback);
+  if (code === "auth/unauthorized-domain") return new Error("当前网站域名还没加入 Firebase Authorized domains");
+  if (code === "auth/operation-not-allowed") return new Error("Firebase 还没开启 Google 登录方式");
+  if (code === "auth/operation-not-supported-in-this-environment") return new Error("当前浏览器环境不支持弹窗登录，请换浏览器或改成重定向登录");
+  if (code === "auth/network-request-failed") return new Error("登录请求失败，请检查当前网络后重试");
+  return new Error(code ? `${fallback}（${code}）` : fallback);
 }
 
 function encodeThreadKey(threadKey) {

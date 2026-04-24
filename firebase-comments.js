@@ -216,6 +216,19 @@ function userFacingError(error, fallback) {
   return new Error(code ? `${fallback}（${code}）` : fallback);
 }
 
+function userFacingFirestoreError(error, fallback) {
+  const code = error && error.code ? String(error.code) : "";
+  const message = error && error.message ? String(error.message) : "";
+  if (code === "permission-denied") return new Error("写入被 Firestore 规则拦截，请先发布最新规则");
+  if (code === "unauthenticated") return new Error("登录状态已失效，请重新登录后再试");
+  if (code === "unavailable") return new Error("Firebase 服务暂时不可用，请稍后再试");
+  if (code === "failed-precondition") return new Error("Firebase 当前配置还没准备好，请检查规则或索引后重试");
+  if (code === "invalid-argument" || /invalid document reference/i.test(message)) {
+    return new Error("保存目标格式无效，已拦截这次写入，请刷新页面后重试");
+  }
+  return new Error(code ? `${fallback}（${code}）` : fallback);
+}
+
 function encodeThreadKey(threadKey) {
   return btoa(unescape(encodeURIComponent(threadKey)))
     .replace(/\+/g, "-")
@@ -305,7 +318,7 @@ const api = {
         clientCreatedAtMs: Date.now(),
       });
     } catch (error) {
-      const friendly = new Error("评论发布失败，请稍后再试");
+      const friendly = userFacingFirestoreError(error, "评论发布失败，请稍后再试");
       setState({ error: friendly.message });
       throw friendly;
     } finally {
@@ -345,7 +358,7 @@ const api = {
       }
     } catch (error) {
       applyOptimisticLike(normalizedThreadKey, wasLiked);
-      const friendly = new Error("点赞失败，请稍后再试");
+      const friendly = userFacingFirestoreError(error, "点赞失败，请稍后再试");
       setState({ error: friendly.message });
       throw friendly;
     } finally {
@@ -389,8 +402,7 @@ const api = {
       }, { merge: true });
       return { id, mode };
     } catch (error) {
-      const code = error && error.code ? String(error.code) : "";
-      const friendly = new Error(code === "permission-denied" ? "保存被 Firestore 规则拦截，请先发布最新规则" : "保存餐厅失败，请稍后再试");
+      const friendly = userFacingFirestoreError(error, "保存餐厅失败，请稍后再试");
       setState({ error: friendly.message });
       throw friendly;
     }
@@ -422,8 +434,7 @@ const api = {
       await firestoreModuleRef.deleteDoc(firestoreModuleRef.doc(db, "placeAdds", id));
       return { id, mode };
     } catch (error) {
-      const code = error && error.code ? String(error.code) : "";
-      const friendly = new Error(code === "permission-denied" ? "删除被 Firestore 规则拦截，请先发布最新规则" : "删除餐厅失败，请稍后再试");
+      const friendly = userFacingFirestoreError(error, "删除餐厅失败，请稍后再试");
       setState({ error: friendly.message });
       throw friendly;
     }

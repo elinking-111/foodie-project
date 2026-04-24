@@ -352,51 +352,55 @@ body{
 
 /* Recommend section */
 .community-qr{
-  max-width:1200px;margin:18px auto 0;padding:0 24px;
+  max-width:1200px;margin:16px auto 0;padding:0 24px;
 }
 .community-qr-card{
-  display:grid;grid-template-columns:minmax(0,1.2fr) 280px;gap:28px;align-items:center;
-  background:linear-gradient(135deg,#F7F0E8 0%,#FBF6F0 48%,#F3ECE3 100%);
-  border-radius:28px;padding:26px 28px;
-  box-shadow:0 16px 34px rgba(42,31,26,0.07);
+  display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:24px;align-items:center;
+  background:rgba(255,252,248,0.86);
+  border:1px solid rgba(237,229,219,0.95);
+  border-radius:24px;padding:22px 24px;
+  box-shadow:0 10px 24px rgba(42,31,26,0.04);
 }
 .community-qr-copy{min-width:0}
 .community-qr-kicker{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:6px 12px;border-radius:999px;background:rgba(91,123,106,0.09);
+  display:inline-flex;align-items:center;
   color:var(--sage);font-size:11px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;
-  margin-bottom:14px;
+  margin-bottom:10px;
 }
 .community-qr-title{
   font-family:'Noto Serif SC','Cormorant Garamond',serif;
-  font-size:clamp(1.45rem,2.4vw,2rem);line-height:1.28;color:var(--dark);margin-bottom:10px;
+  font-size:clamp(1.28rem,2vw,1.72rem);line-height:1.36;color:var(--dark);margin-bottom:8px;
 }
 .community-qr-desc{
-  max-width:560px;font-size:14px;line-height:1.9;color:#6F6053;
+  max-width:560px;font-size:13px;line-height:1.85;color:#746557;
 }
 .community-qr-points{
-  display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;
+  display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;
 }
 .community-qr-point{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:9px 14px;border-radius:999px;background:rgba(255,255,255,0.72);
-  color:#7B6A5B;font-size:12px;font-weight:600;
+  display:inline-flex;align-items:center;
+  color:#867567;font-size:12px;font-weight:600;
+}
+.community-qr-point::before{
+  content:'';
+  width:4px;height:4px;border-radius:50%;background:rgba(91,123,106,0.42);margin-right:8px;
 }
 .community-qr-note{
-  margin-top:16px;font-size:12px;line-height:1.7;color:#9B8A7A;
+  margin-top:14px;font-size:12px;line-height:1.7;color:#9B8A7A;
 }
 .community-qr-visual{
   display:flex;justify-content:center;
 }
 .community-qr-frame{
-  width:min(100%,280px);padding:14px;border-radius:26px;background:rgba(255,255,255,0.9);
-  box-shadow:0 14px 28px rgba(42,31,26,0.08);
+  width:min(100%,220px);padding:10px;border-radius:22px;background:#FFF;
+  border:1px solid rgba(237,229,219,0.95);
+  box-shadow:0 6px 18px rgba(42,31,26,0.04);
 }
 .community-qr-frame img{
-  display:block;width:100%;height:auto;border-radius:18px;
+  display:block;width:100%;height:auto;border-radius:16px;
 }
 .community-qr-caption{
-  margin-top:10px;text-align:center;font-size:12px;color:#8F7F71;line-height:1.6;
+  margin-top:8px;text-align:center;font-size:11px;color:#8F7F71;line-height:1.6;
 }
 .recommend-banner{
   max-width:1200px;margin:18px auto 18px;padding:0 24px;
@@ -574,11 +578,11 @@ body{
   .form-row{grid-template-columns:1fr}
   .fab{bottom:68px;right:16px}
   .community-qr,.recommend-banner,.global-discussion-shell{padding-left:16px;padding-right:16px}
-  .community-qr-card{grid-template-columns:1fr;padding:18px;gap:16px}
-  .community-qr-title{font-size:1.35rem}
+  .community-qr-card{grid-template-columns:1fr;padding:18px;gap:14px}
+  .community-qr-title{font-size:1.25rem}
   .community-qr-desc{font-size:13px;line-height:1.8}
   .community-qr-visual{justify-content:flex-start}
-  .community-qr-frame{width:min(100%,240px)}
+  .community-qr-frame{width:min(100%,212px)}
   .recommend-banner-inner{padding:16px;align-items:flex-start;flex-direction:column}
   .recommend-banner-btn{width:100%;justify-content:center}
 }
@@ -634,14 +638,14 @@ body{
   <div class="community-qr-card">
     <div class="community-qr-copy">
       <div class="community-qr-kicker">AI 学习搭子</div>
-      <div class="community-qr-title">想找人一起聊 AI、做项目、交换最近的灵感和观察？</div>
-      <div class="community-qr-desc">扫码进群交流。这里不只是分享好店，也欢迎一起聊 AI 产品、Prompt、做站流程、灵感来源和最近值得试的新工具。</div>
+      <div class="community-qr-title">想找人一起聊 AI、做项目，顺手交换最近的灵感和观察？</div>
+      <div class="community-qr-desc">扫码进群交流。这里欢迎聊 AI 产品、Prompt、做站流程、灵感来源，以及最近值得试的新工具。</div>
       <div class="community-qr-points">
         <div class="community-qr-point">一起学 AI</div>
         <div class="community-qr-point">一起拆 Prompt</div>
         <div class="community-qr-point">一起做小项目</div>
       </div>
-      <div class="community-qr-note">微信扫码即可进群。二维码有时效，失效后会更新最新版本。</div>
+      <div class="community-qr-note">微信扫码即可进群。二维码有时效，失效后会更新。</div>
     </div>
     <div class="community-qr-visual">
       <div class="community-qr-frame">

@@ -193,23 +193,23 @@ body{
 .card-recommend:hover{background:#E8D5CB;color:var(--dark)}
 .card-recommend.active{background:var(--primary);color:#FFF}
 .card-discussion-actions{
-  display:flex;align-items:center;gap:8px;margin-top:14px;
+  display:flex;align-items:center;gap:10px;margin-top:16px;
   flex-wrap:wrap;
 }
 .card-like-btn{
   appearance:none;border:none;border-radius:999px;
   padding:9px 10px 9px 14px;font-size:12px;font-weight:700;font-family:inherit;
-  background:#F2F0EA;color:#4C5D53;cursor:pointer;transition:all 0.22s ease;
+  background:#F3F1EC;color:#55645C;cursor:pointer;transition:all 0.22s ease;
   display:inline-flex;align-items:center;gap:10px;
 }
 .card-like-btn:hover{
   transform:translateY(-1px);
-  background:#E7ECE7;
-  box-shadow:0 10px 22px rgba(91,123,106,0.10);
+  background:#E8ECE6;
+  box-shadow:0 8px 18px rgba(91,123,106,0.08);
 }
 .card-like-btn.active{
-  background:linear-gradient(135deg,#6F8D7E 0%,var(--sage) 100%);
-  color:#FFF;box-shadow:0 10px 24px rgba(91,123,106,0.18);
+  background:linear-gradient(135deg,#7A9688 0%,var(--sage) 100%);
+  color:#FFF;box-shadow:0 8px 20px rgba(91,123,106,0.14);
 }
 .like-btn-label{
   display:inline-flex;align-items:center;gap:6px;
@@ -225,18 +225,18 @@ body{
 .card-comment-btn,.comment-switch-btn{
   appearance:none;border:none;border-radius:999px;
   padding:9px 10px 9px 14px;font-size:12px;font-weight:700;font-family:inherit;
-  background:linear-gradient(135deg,var(--primary) 0%,#D97757 100%);
+  background:linear-gradient(135deg,#D98B69 0%,#CD7551 100%);
   color:#FFF;cursor:pointer;transition:all 0.22s ease;
-  box-shadow:0 8px 18px rgba(196,87,58,0.18);
+  box-shadow:0 8px 18px rgba(196,87,58,0.14);
   display:inline-flex;align-items:center;gap:10px;
 }
 .card-comment-btn:hover,.comment-switch-btn:hover{
   transform:translateY(-1px);
-  box-shadow:0 12px 24px rgba(196,87,58,0.24);
+  box-shadow:0 10px 22px rgba(196,87,58,0.18);
 }
 .card-comment-btn.active{
   background:var(--dark);color:#FFF;
-  box-shadow:0 10px 22px rgba(42,31,26,0.18);
+  box-shadow:0 8px 18px rgba(42,31,26,0.14);
 }
 .comment-btn-label{
   display:inline-flex;align-items:center;gap:6px;
@@ -440,9 +440,9 @@ body{
 }
 .recommend-banner-inner{
   background:linear-gradient(135deg,#FFF4EC 0%,#F8EEE6 100%);
-  border:1px solid #EACDBD;border-radius:22px;padding:18px 20px;
+  border:none;border-radius:24px;padding:18px 20px;
   display:flex;align-items:center;justify-content:space-between;gap:18px;
-  box-shadow:var(--shadow);
+  box-shadow:0 14px 30px rgba(42,31,26,0.06);
 }
 .recommend-banner-copy{min-width:0}
 .recommend-banner-title{
@@ -454,20 +454,20 @@ body{
 }
 .recommend-banner-btn{
   appearance:none;border:none;border-radius:999px;padding:12px 18px;
-  background:linear-gradient(135deg,var(--primary) 0%,#D97757 100%);
+  background:linear-gradient(135deg,#D98B69 0%,#CD7551 100%);
   color:#FFF;font:inherit;font-size:13px;font-weight:700;cursor:pointer;
-  display:inline-flex;align-items:center;gap:10px;box-shadow:0 12px 28px rgba(196,87,58,0.22);
+  display:inline-flex;align-items:center;gap:10px;box-shadow:0 10px 22px rgba(196,87,58,0.16);
   transition:transform 0.2s ease, box-shadow 0.2s ease;
   white-space:nowrap;
 }
 .recommend-banner-btn:hover{
-  transform:translateY(-1px);box-shadow:0 16px 32px rgba(196,87,58,0.28);
+  transform:translateY(-1px);box-shadow:0 12px 24px rgba(196,87,58,0.18);
 }
 .recommend-banner-btn.active{
-  background:var(--dark);box-shadow:0 14px 30px rgba(42,31,26,0.2);
+  background:var(--dark);box-shadow:0 10px 22px rgba(42,31,26,0.14);
 }
 .recommend-banner-meta{
-  padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.18);
+  padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.14);
   font-size:11px;font-weight:700;
 }
 .global-discussion-shell{

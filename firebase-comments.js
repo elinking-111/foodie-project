@@ -227,6 +227,10 @@ function getLikeDocId(uid, threadKey) {
   return `${uid}__${encodeThreadKey(threadKey)}`;
 }
 
+function getPlaceEditDocId(sourceKey) {
+  return `sync__${encodeThreadKey(sourceKey)}`;
+}
+
 async function ensureViewerSession() {
   await ensureReady();
   if (auth && auth.currentUser) return auth.currentUser;
@@ -363,7 +367,7 @@ const api = {
       if (mode === "sync") {
         const sourceKey = String(payload && payload.sourceKey ? payload.sourceKey : "").trim();
         if (!sourceKey) throw new Error("编辑目标无效");
-        await firestoreModuleRef.setDoc(firestoreModuleRef.doc(db, "placeEdits", sourceKey), {
+        await firestoreModuleRef.setDoc(firestoreModuleRef.doc(db, "placeEdits", getPlaceEditDocId(sourceKey)), {
           sourceKey,
           deleted: false,
           ...item,
@@ -403,7 +407,7 @@ const api = {
       if (mode === "sync") {
         const sourceKey = String(payload && payload.sourceKey ? payload.sourceKey : "").trim();
         if (!sourceKey) throw new Error("删除目标无效");
-        await firestoreModuleRef.setDoc(firestoreModuleRef.doc(db, "placeEdits", sourceKey), {
+        await firestoreModuleRef.setDoc(firestoreModuleRef.doc(db, "placeEdits", getPlaceEditDocId(sourceKey)), {
           sourceKey,
           deleted: true,
           updatedAt: firestoreModuleRef.serverTimestamp(),

@@ -724,7 +724,7 @@ body{
 </div>
 </div><!-- end sticky-bar -->
 
-<div class="community-qr" id="communityQr">
+<div class="community-qr" id="communityQrTop">
   <div class="community-qr-card">
     <div class="community-qr-copy">
       <div class="community-qr-kicker">AI 学习搭子</div>
@@ -775,6 +775,26 @@ body{
   </div>
 </div>
 <div class="grid" id="grid"></div>
+
+<div class="community-qr" id="communityQrBottom">
+  <div class="community-qr-card">
+    <div class="community-qr-copy">
+      <div class="community-qr-kicker">AI 学习搭子</div>
+      <div class="community-qr-points">
+        <div class="community-qr-point">一起学 AI</div>
+        <div class="community-qr-point">一起拆 Prompt</div>
+        <div class="community-qr-point">一起做小项目</div>
+      </div>
+      <div class="community-qr-note">微信扫码即可进群。二维码有时效，失效后会更新。</div>
+    </div>
+    <div class="community-qr-visual">
+      <div class="community-qr-frame">
+        <img src="assets/ai-study-buddy-qr.png" alt="AI 学习搭子微信群二维码">
+        <div class="community-qr-caption">扫码加入 AI 学习搭子群</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="footer">
   EAT &middot; DRINK &middot; EXPLORE &middot; TRAVEL &mdash; Last updated April 2026
@@ -865,7 +885,9 @@ const GISCUS_CONFIG = {
   theme: 'light_protanopia',
   lang: 'zh-CN',
 };
+const COMMUNITY_QR_POSITION_KEY = 'foodie_community_qr_position';
 let communityQrVisible=false;
+let communityQrBottomVisible=false;
 
 const CAT_EMOJI={}, CAT_LABEL={};
 CATEGORIES.forEach(c=>{ if(c.key!=='all'){CAT_EMOJI[c.key]=c.emoji; CAT_LABEL[c.key]=c.label;} });
@@ -975,20 +997,30 @@ function updateStats(){
   document.getElementById('statPlay').textContent=md.filter(d=>d.region==="中国").length;
   document.getElementById('statTravel').textContent=md.filter(d=>d.region==="海外").length;
 }
+function loadCommunityQrPosition(){
+  try{
+    communityQrBottomVisible=localStorage.getItem(COMMUNITY_QR_POSITION_KEY)==='bottom';
+  }catch(e){
+    communityQrBottomVisible=false;
+  }
+}
 function updateCommunityQrVisibility(){
-  const node=document.getElementById('communityQr');
-  if(!node) return;
-  node.classList.toggle('show',communityQrVisible);
+  const topNode=document.getElementById('communityQrTop');
+  const bottomNode=document.getElementById('communityQrBottom');
+  if(topNode) topNode.classList.toggle('show',communityQrVisible);
+  if(bottomNode) bottomNode.classList.toggle('show',communityQrBottomVisible);
 }
 window.handleScrollTopAction=function(){
-  if(!communityQrVisible){
+  if(!communityQrVisible && !communityQrBottomVisible){
     communityQrVisible=true;
+    try{ localStorage.setItem(COMMUNITY_QR_POSITION_KEY,'bottom'); }catch(e){}
     updateCommunityQrVisibility();
   }
   window.scrollTo({top:0,behavior:'smooth'});
 };
 function init(){
   loadState();
+  loadCommunityQrPosition();
   loadDiscussionCountCache();
   loadLikeState();
   updateStats();

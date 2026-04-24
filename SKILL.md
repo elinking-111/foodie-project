@@ -1,21 +1,60 @@
 ---
 name: foodie-site
-description: "Generate a beautiful foodie/travel review map website from notes and deploy it to GitHub Pages. Use this skill whenever a user wants to turn their food, restaurant, travel, or place lists into a website — whether from Apple Notes, pasted text, a file, social media posts (小红书/Xiaohongshu, Yelp, TripAdvisor, etc.), or any list of places they've been or want to visit. Also trigger when users mention: making a food map, restaurant guide, travel diary website, personal review site, place collection, 探店地图, 美食地图, or anything involving turning a list of locations/venues into a browsable web page with filters and maps."
+description: "Build or iteratively evolve a foodie/travel review website from notes and deploy it to GitHub Pages. Use this skill both for greenfield generation from Apple Notes/pasted text/social posts and for ongoing upgrades to an existing site: visual refinement, map/filter changes, showcase pages, QR/community modules, Firebase comments/likes, Google login, and admin editing for shared content."
 ---
 
 # Foodie Site Generator
 
-Turn a user's personal collection of restaurants, cafes, bars, travel destinations, and points of interest into a beautiful, filterable, map-enabled static website — then deploy it live.
+Turn a user's personal collection of restaurants, cafes, bars, travel destinations, and points of interest into a beautiful, filterable, map-enabled website — then keep evolving it as the product grows.
 
 ## Overview
 
-The workflow has 5 steps. The key design: you do NOT write HTML from scratch. A production-quality template is bundled in `assets/template.html`. You generate two small files (`data.js` and `config.json`), then run `scripts/setup.py` to customize the template.
+This skill now has 2 modes.
+
+1. **Greenfield mode**: Create a new site from notes or pasted lists.
+2. **Iteration mode**: Upgrade an existing deployed site with product and growth features.
+
+The original core still matters: do NOT hand-write a brand-new HTML app when the project is in bootstrap mode. Use the bundled template workflow unless there is already a customized `index.html` in the repo that has diverged materially.
+
+For this repo specifically:
+- `assets/template.html` is the template mirror.
+- `index.html` is the live page.
+- Once a site has accumulated custom product work, edit both `index.html` and `assets/template.html` together unless you are intentionally regenerating from scratch.
+- Do not claim a change is live until the git push succeeds and the latest GitHub Pages build reports `built`.
+
+## Core Workflows
+
+### A. Greenfield build
+
+Use this when the user is turning notes, Apple Notes exports, pasted restaurant lists, or social-media food content into a new site.
 
 1. **Collect** — Get the user's notes
 2. **Parse** — Convert notes into `data.js`
 3. **Configure** — Write `config.json` to customize the template
 4. **Build** — Run `setup.py` to generate `index.html` from template + config
 5. **Deploy** — Push to GitHub Pages
+
+### B. Iteration / live-site upgrades
+
+Use this when the user already has a foodie site and wants to keep iterating. Typical requests now include:
+
+- visual refinement and lighter UI
+- comment and recommendation UX changes
+- shared likes / thumbs-up
+- Firebase-backed comments
+- Google login
+- admin-only editing for live restaurant data
+- showcase / case-study pages
+- QR code community modules
+- homepage wording / title / information hierarchy changes
+
+Recommended iteration order:
+
+1. Inspect current `index.html`, `assets/template.html`, and related JS/CSS before proposing changes.
+2. Prefer the existing visual language of the current site over regenerating from template.
+3. If the change affects shared interactions, check whether it belongs in Firebase rather than localStorage.
+4. If the page has a corresponding template mirror, keep both files in sync.
+5. After changes, push and verify GitHub Pages build status.
 
 ## Step 1: Collect the notes
 
@@ -150,7 +189,73 @@ python3 <skill-path>/scripts/setup.py config.json <skill-path>/assets/template.h
 
 This takes the production-quality template and injects the config values. The result is a complete, working `index.html`.
 
-**Do NOT write index.html manually.** The template has 1100+ lines of carefully crafted CSS, JS, and HTML. Always use the setup script.
+**Do NOT write a new `index.html` manually in greenfield mode.** The template has the base CSS, JS, and HTML. Use the setup script.
+
+**Exception for iteration mode:** if the live site already contains substantial custom logic not represented in `config.json` or `setup.py` output, patch the existing `index.html` and keep `assets/template.html` aligned. Do not wipe out product-layer changes by blindly regenerating.
+
+## Firebase Interaction Layer
+
+When the user wants shared interaction instead of browser-local state, prefer Firebase.
+
+Current supported patterns in this repo:
+
+- `firebase-config.js`: runtime config
+- `firebase-comments.js`: Google auth, anonymous like sessions, Firestore subscriptions
+- `firestore.rules`: auth and write restrictions
+
+Use Firebase for:
+
+- shared comments
+- shared likes / thumbs-up counts
+- Google login for posting
+- admin-only shared editing of restaurant data
+
+Important:
+
+- Likes can be anonymous if the product goal is lightweight interaction.
+- Comments should require a signed-in Google user if identity matters.
+- Admin editing should be gated by an allowlist email and Firestore rules.
+- If Firestore rules change, they must be deployed separately; code changes alone are not enough.
+
+If `firebase-tools` is unavailable, fall back to `npx firebase-tools ...`.
+If deployment fails because auth is missing, explicitly tell the user they must run `npx firebase-tools login` first.
+
+## Admin Editing
+
+For this repo's current architecture, "editable by owner" means:
+
+- only a specific Google account can see edit controls
+- changes write to Firestore, not just localStorage
+- all users see the updated restaurant data
+
+Do not mistake local modal editing for shared CMS behavior. If the request is to fix a restaurant for everyone, the write path must be shared.
+
+## Showcase / Growth Pages
+
+This project now supports adjacent pages beyond the main directory:
+
+- `showcase.html`: public showcase / case-study page
+- `PROJECT_SHOWCASE.md`: narrative/source content for the showcase
+
+Use a separate page when the user wants to explain:
+
+- how the site was built
+- prompts used during the project
+- product evolution
+- before/after capability demos
+
+Do not add showcase entry points to the hero unless the user explicitly wants that.
+
+## Community / QR Modules
+
+QR-code modules are now a valid product feature for this skill.
+
+Guidelines:
+
+- choose placement based on attention cost, not just visibility
+- first-run top placement can be acceptable, but recurring display should usually move lower
+- if the site already has a "scroll to top" affordance, it can double as a reveal trigger for optional community modules
+- when adding image assets such as QR codes, keep the real asset in `assets/` and reference it from both live page and template mirror
 
 ## Step 5: Deploy to GitHub Pages
 
@@ -163,16 +268,28 @@ This takes the production-quality template and injects the config values. The re
    - Write domain to `CNAME` file, commit, push
    - Tell user to add DNS CNAME record → `<username>.github.io`
    - Cloudflare users: set Proxy to "DNS only" (grey cloud)
-6. Verify: `curl -sI http://<domain-or-github-url>`
+6. Verify push succeeded
+7. Check Pages build status:
+   - `gh api repos/<owner>/<repo>/pages/builds --jq '.[0] | {status, error: .error.message, commit}'`
+8. Verify site URL after the latest build is `built`
 
 ## For content updates
 
 Re-parse notes, regenerate `data.js`, commit and push. The template and localStorage state are preserved.
+
+For iterative live-site updates:
+
+- inspect whether the current request is content-only, UI-only, or shared-data/product-layer
+- keep `index.html` and `assets/template.html` aligned if both exist
+- preserve user changes already in the repo
+- verify the latest deploy before telling the user to refresh
 
 ## Important
 
 - Always ask for the site title first.
 - `data.js` and `index.html` must be in the same directory.
 - User state (visited toggles, stars, manual additions) lives in localStorage — updating data.js won't lose it.
+- Shared Firebase-backed state is separate from localStorage and must be treated as source-of-truth for collaborative features.
 - If `gh` is unavailable, give manual GitHub instructions.
 - The final site is two files: `index.html` + `data.js`. No build tools needed.
+- If this specific repo already has Firebase, showcase pages, or custom interaction modules, do not revert to the minimal static-site workflow by default.

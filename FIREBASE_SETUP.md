@@ -2,7 +2,7 @@
 
 This repo now supports a Google-login comment MVP backed by Firebase Auth + Firestore.
 
-If `firebase-config.js` stays `null`, the site continues to use the existing giscus / GitHub discussion flow.
+The public repo does **not** commit a live `firebase-config.js`. Instead, GitHub Pages deployment injects it from a GitHub Actions secret at build time.
 
 ## 1. Create a Firebase project
 
@@ -11,10 +11,29 @@ If `firebase-config.js` stays `null`, the site continues to use the existing gis
 3. Add a Web App.
 4. Copy the Web App config values.
 
-## 2. Fill the local config
+## 2. Store the runtime config in GitHub Secrets
 
-1. Copy `firebase-config.example.js` to `firebase-config.js`.
-2. Replace the placeholder values with your Firebase Web App config.
+Create a repository secret named `FOODIE_FIREBASE_CONFIG_JS`.
+
+The value should be the full JS file body:
+
+```js
+window.FOODIE_FIREBASE_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID",
+};
+```
+
+Why this repo uses a secret:
+
+- the public GitHub repo should not expose the live Firebase runtime config file
+- the deployed website still needs `firebase-config.js` at runtime
+- GitHub Pages Actions can generate that file during deployment without committing it
 
 ## 3. Enable Authentication
 
@@ -45,7 +64,13 @@ Rules in this MVP allow:
 - public read
 - authenticated create for comments
 - authenticated anonymous-or-user create/delete for likes
-- no public update/delete
+- admin-only create/update/delete for shared place edits
+
+If you update `firestore.rules`, deploy them separately:
+
+```bash
+npx firebase-tools deploy --only firestore:rules
+```
 
 ## 6. Expected collection shape
 
@@ -76,9 +101,17 @@ Example document:
 
 ## 7. Deploy
 
-Once `firebase-config.js` is filled, deploy the site as usual.
+This repo now deploys with GitHub Pages Actions instead of legacy branch publishing.
 
-If you keep `.nojekyll`, GitHub Pages should continue to serve the added JS files directly.
+Deployment flow:
+
+1. push to `main`
+2. GitHub Actions runs `.github/workflows/deploy-pages.yml`
+3. the workflow copies the site into `dist/`
+4. it writes `dist/firebase-config.js` from `FOODIE_FIREBASE_CONFIG_JS`
+5. it uploads the artifact and deploys Pages
+
+If the secret is missing, the workflow should fail instead of publishing a degraded site.
 
 ## Notes
 
@@ -88,3 +121,4 @@ If you keep `.nojekyll`, GitHub Pages should continue to serve the added JS file
 - Writing comments requires Google login.
 - Shared likes and comments only become active after Firebase is configured.
 - The previous giscus path remains as fallback until Firebase is configured.
+- Admin editing also depends on Firebase being available at runtime.

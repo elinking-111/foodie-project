@@ -29,14 +29,22 @@ jobs:
         env:
           FIREBASE_CONFIG_JS: ${{ secrets.FOODIE_FIREBASE_CONFIG_JS }}
         run: |
+          if [ -z "$FIREBASE_CONFIG_JS" ]; then
+            echo "Missing required GitHub secret: FOODIE_FIREBASE_CONFIG_JS" >&2
+            exit 1
+          fi
+
           mkdir -p dist
           rsync -av \
             --exclude='.git' \
             --exclude='.github' \
             ./ dist/
 
-          if [ -n "$FIREBASE_CONFIG_JS" ]; then
-            printf '%s\n' "$FIREBASE_CONFIG_JS" > dist/firebase-config.js
+          printf '%s\n' "$FIREBASE_CONFIG_JS" > dist/firebase-config.js
+
+          if [ ! -s dist/firebase-config.js ]; then
+            echo "firebase-config.js was not generated correctly" >&2
+            exit 1
           fi
 
       - name: Upload Pages artifact

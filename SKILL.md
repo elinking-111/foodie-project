@@ -197,9 +197,10 @@ When the user wants shared interaction instead of browser-local state, prefer Fi
 
 Current supported patterns in this repo:
 
-- `firebase-config.js`: runtime config
+- `firebase-config.js`: runtime config file generated at deploy time
 - `firebase-comments.js`: auth sessions, anonymous like sessions, Firestore subscriptions
 - `firestore.rules`: auth and write restrictions
+- `.github/workflows/deploy-pages.yml`: GitHub Pages artifact build + secret injection
 
 Use Firebase for:
 
@@ -213,6 +214,7 @@ Important:
 - Comments should require a signed-in user if identity matters.
 - Admin editing should be gated by an allowlist identity and Firestore rules.
 - If Firestore rules change, they must be deployed separately; code changes alone are not enough.
+- In this repo, do not commit a live `firebase-config.js` to the public branch; use the GitHub secret `FOODIE_FIREBASE_CONFIG_JS` and let the Pages workflow generate it during deployment.
 
 If `firebase-tools` is unavailable, fall back to `npx firebase-tools ...`.
 If deployment fails because auth is missing, explicitly tell the user they must run `npx firebase-tools login` first.

@@ -174,24 +174,24 @@ body{
 }
 .card-name-en{font-size:12px;color:var(--muted);font-style:italic}
 .card-top-right{
-  position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:6px;
+  position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:5px;
 }
 .card-visited{
-  width:26px;height:26px;border-radius:50%;border:2px solid var(--light-border);
-  background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:14px;color:transparent;transition:all 0.25s ease;flex-shrink:0;
+  width:24px;height:24px;border-radius:50%;border:none;
+  background:rgba(91,123,106,0.10);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:rgba(91,123,106,0.34);transition:all 0.25s ease;flex-shrink:0;
 }
-.card-visited:hover{border-color:var(--sage);color:var(--sage)}
+.card-visited:hover{background:rgba(91,123,106,0.15);color:var(--sage)}
 .card-visited.checked{
-  background:var(--sage);border-color:var(--sage);color:#FFF;
+  background:rgba(91,123,106,0.92);color:#FFF;
 }
 .card-recommend{
-  font-size:10px;font-weight:600;letter-spacing:0.5px;
-  background:var(--light-border);color:var(--muted);padding:2px 8px;border-radius:100px;
+  font-size:10px;font-weight:700;letter-spacing:0.4px;
+  background:rgba(42,31,26,0.06);color:#8A7767;padding:4px 9px;border-radius:999px;
   line-height:1.4;cursor:pointer;border:none;font-family:inherit;transition:all 0.2s ease;
 }
-.card-recommend:hover{background:#E8D5CB;color:var(--dark)}
-.card-recommend.active{background:var(--primary);color:#FFF}
+.card-recommend:hover{background:rgba(42,31,26,0.10);color:var(--dark)}
+.card-recommend.active{background:rgba(196,87,58,0.12);color:var(--primary)}
 .card-discussion-actions{
   display:flex;align-items:center;gap:8px;margin-top:16px;
   flex-wrap:wrap;
@@ -303,7 +303,9 @@ body{
 
 /* Card actions — small icons, bottom-right corner, same line as tags */
 /* Visited badge on card */
-.card.is-visited{border-left:3px solid var(--sage)}
+.card.is-visited{
+  box-shadow:inset 0 0 0 1px rgba(91,123,106,0.18), var(--shadow);
+}
 /* Status filter */
 .status-btn.active-visited{background:var(--sage);color:#FFF;border-color:var(--sage)}
 .status-btn.active-unvisited{background:var(--accent);color:#FFF;border-color:var(--accent)}

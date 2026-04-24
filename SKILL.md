@@ -1,6 +1,6 @@
 ---
 name: foodie-site
-description: "Build or iteratively evolve a foodie/travel review website from notes and deploy it to GitHub Pages. Use this skill both for greenfield generation from Apple Notes/pasted text/social posts and for ongoing upgrades to an existing site: visual refinement, map/filter changes, showcase pages, QR/community modules, Firebase comments/likes, Google login, and admin editing for shared content."
+description: "Build or iteratively evolve a foodie/travel review website from notes and deploy it to GitHub Pages. Use this skill both for greenfield generation from Apple Notes/pasted text/social posts and for ongoing upgrades to an existing site: visual refinement, map/filter changes, showcase pages, shared interactions, and admin editing for shared content."
 ---
 
 # Foodie Site Generator
@@ -42,10 +42,8 @@ Use this when the user already has a foodie site and wants to keep iterating. Ty
 - comment and recommendation UX changes
 - shared likes / thumbs-up
 - Firebase-backed comments
-- Google login
 - admin-only editing for live restaurant data
 - showcase / case-study pages
-- QR code community modules
 - homepage wording / title / information hierarchy changes
 
 Recommended iteration order:
@@ -200,21 +198,20 @@ When the user wants shared interaction instead of browser-local state, prefer Fi
 Current supported patterns in this repo:
 
 - `firebase-config.js`: runtime config
-- `firebase-comments.js`: Google auth, anonymous like sessions, Firestore subscriptions
+- `firebase-comments.js`: auth sessions, anonymous like sessions, Firestore subscriptions
 - `firestore.rules`: auth and write restrictions
 
 Use Firebase for:
 
 - shared comments
 - shared likes / thumbs-up counts
-- Google login for posting
 - admin-only shared editing of restaurant data
 
 Important:
 
 - Likes can be anonymous if the product goal is lightweight interaction.
-- Comments should require a signed-in Google user if identity matters.
-- Admin editing should be gated by an allowlist email and Firestore rules.
+- Comments should require a signed-in user if identity matters.
+- Admin editing should be gated by an allowlist identity and Firestore rules.
 - If Firestore rules change, they must be deployed separately; code changes alone are not enough.
 
 If `firebase-tools` is unavailable, fall back to `npx firebase-tools ...`.
@@ -224,7 +221,7 @@ If deployment fails because auth is missing, explicitly tell the user they must 
 
 For this repo's current architecture, "editable by owner" means:
 
-- only a specific Google account can see edit controls
+- only a specific owner account can see edit controls
 - changes write to Firestore, not just localStorage
 - all users see the updated restaurant data
 
@@ -245,17 +242,6 @@ Use a separate page when the user wants to explain:
 - before/after capability demos
 
 Do not add showcase entry points to the hero unless the user explicitly wants that.
-
-## Community / QR Modules
-
-QR-code modules are now a valid product feature for this skill.
-
-Guidelines:
-
-- choose placement based on attention cost, not just visibility
-- first-run top placement can be acceptable, but recurring display should usually move lower
-- if the site already has a "scroll to top" affordance, it can double as a reveal trigger for optional community modules
-- when adding image assets such as QR codes, keep the real asset in `assets/` and reference it from both live page and template mirror
 
 ## Step 5: Deploy to GitHub Pages
 

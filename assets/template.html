@@ -351,88 +351,6 @@ body{
 .empty-text{font-size:15px;color:var(--muted)}
 
 /* Recommend section */
-.community-qr{
-  display:none;max-width:1200px;margin:16px auto 0;padding:0 24px;
-}
-.community-qr.show{display:block}
-.community-qr-card{
-  display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:24px;align-items:center;
-  background:rgba(255,252,248,0.86);
-  border:1px solid rgba(237,229,219,0.95);
-  border-radius:24px;padding:22px 24px;
-  box-shadow:0 10px 24px rgba(42,31,26,0.04);
-}
-.community-qr-copy{min-width:0}
-.community-qr-kicker{
-  display:inline-flex;align-items:center;
-  color:var(--sage);font-size:11px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;
-  margin-bottom:10px;
-}
-.community-qr-title{
-  font-family:'Noto Serif SC','Cormorant Garamond',serif;
-  font-size:clamp(1.28rem,2vw,1.72rem);line-height:1.36;color:var(--dark);margin-bottom:8px;
-}
-.community-qr-desc{
-  max-width:560px;font-size:13px;line-height:1.85;color:#746557;
-}
-.community-qr-points{
-  display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;
-}
-.community-qr-point{
-  display:inline-flex;align-items:center;
-  color:#867567;font-size:12px;font-weight:600;
-}
-.community-qr-point::before{
-  content:'';
-  width:4px;height:4px;border-radius:50%;background:rgba(91,123,106,0.42);margin-right:8px;
-}
-.community-qr-note{
-  margin-top:14px;font-size:12px;line-height:1.7;color:#9B8A7A;
-}
-.community-qr-visual{
-  display:flex;justify-content:center;
-}
-.community-qr-frame{
-  width:min(100%,220px);padding:10px;border-radius:22px;background:#FFF;
-  border:1px solid rgba(237,229,219,0.95);
-  box-shadow:0 6px 18px rgba(42,31,26,0.04);
-}
-.community-qr-frame img{
-  display:block;width:100%;height:auto;border-radius:16px;
-}
-.community-qr-caption{
-  margin-top:8px;text-align:center;font-size:11px;color:#8F7F71;line-height:1.6;
-}
-.community-qr.bottom-qr{
-  margin-top:28px;margin-bottom:8px;
-}
-.community-qr.bottom-qr .community-qr-card{
-  grid-template-columns:minmax(0,1fr) 190px;gap:18px;
-  background:transparent;border:none;border-top:1px solid rgba(237,229,219,0.95);
-  border-radius:0;padding:18px 0 0;box-shadow:none;
-}
-.community-qr.bottom-qr .community-qr-kicker{
-  color:#8F7F71;font-size:10px;letter-spacing:1px;margin-bottom:8px;
-}
-.community-qr.bottom-qr .community-qr-points{
-  gap:10px;margin-top:0;
-}
-.community-qr.bottom-qr .community-qr-point{
-  color:#938476;font-size:11px;
-}
-.community-qr.bottom-qr .community-qr-note{
-  margin-top:10px;font-size:11px;color:#A19182;
-}
-.community-qr.bottom-qr .community-qr-frame{
-  width:min(100%,170px);padding:8px;border-radius:18px;
-  background:rgba(255,255,255,0.78);box-shadow:none;
-}
-.community-qr.bottom-qr .community-qr-frame img{
-  border-radius:12px;
-}
-.community-qr.bottom-qr .community-qr-caption{
-  font-size:10px;color:#9A8A7B;
-}
 .recommend-banner{
   max-width:1200px;margin:18px auto 18px;padding:0 24px;
 }
@@ -622,15 +540,7 @@ body{
   .modal{max-width:100%;border-radius:16px}
   .form-row{grid-template-columns:1fr}
   .fab{bottom:68px;right:16px}
-  .community-qr,.recommend-banner,.global-discussion-shell{padding-left:16px;padding-right:16px}
-  .community-qr-card{grid-template-columns:1fr;padding:18px;gap:14px}
-  .community-qr-title{font-size:1.25rem}
-  .community-qr-desc{font-size:13px;line-height:1.8}
-  .community-qr-visual{justify-content:flex-start}
-  .community-qr-frame{width:min(100%,212px)}
-  .community-qr.bottom-qr{margin-top:22px}
-  .community-qr.bottom-qr .community-qr-card{grid-template-columns:1fr;padding-top:14px;gap:12px}
-  .community-qr.bottom-qr .community-qr-frame{width:min(100%,164px)}
+  .recommend-banner,.global-discussion-shell{padding-left:16px;padding-right:16px}
   .recommend-banner-inner{padding:16px;align-items:flex-start;flex-direction:column}
   .recommend-banner-btn{width:100%;justify-content:center}
 }
@@ -682,26 +592,6 @@ body{
 </div>
 </div><!-- end sticky-bar -->
 
-<div class="community-qr" id="communityQrTop">
-  <div class="community-qr-card">
-    <div class="community-qr-copy">
-      <div class="community-qr-kicker">AI 学习搭子</div>
-      <div class="community-qr-points">
-        <div class="community-qr-point">一起学 AI</div>
-        <div class="community-qr-point">一起拆 Prompt</div>
-        <div class="community-qr-point">一起做小项目</div>
-      </div>
-      <div class="community-qr-note">微信扫码即可进群。二维码有时效，失效后会更新。</div>
-    </div>
-    <div class="community-qr-visual">
-      <div class="community-qr-frame">
-        <img src="assets/ai-study-buddy-qr.png" alt="AI 学习搭子微信群二维码">
-        <div class="community-qr-caption">扫码加入 AI 学习搭子群</div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div class="recommend-banner">
   <div class="recommend-banner-inner">
     <div class="recommend-banner-copy">
@@ -733,26 +623,6 @@ body{
   </div>
 </div>
 <div class="grid" id="grid"></div>
-
-<div class="community-qr bottom-qr" id="communityQrBottom">
-  <div class="community-qr-card">
-    <div class="community-qr-copy">
-      <div class="community-qr-kicker">AI 学习搭子</div>
-      <div class="community-qr-points">
-        <div class="community-qr-point">一起学 AI</div>
-        <div class="community-qr-point">一起拆 Prompt</div>
-        <div class="community-qr-point">一起做小项目</div>
-      </div>
-      <div class="community-qr-note">微信扫码即可进群。二维码有时效，失效后会更新。</div>
-    </div>
-    <div class="community-qr-visual">
-      <div class="community-qr-frame">
-        <img src="assets/ai-study-buddy-qr.png" alt="AI 学习搭子微信群二维码">
-        <div class="community-qr-caption">扫码加入 AI 学习搭子群</div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <div class="footer">
   <div class="admin-auth-bar" id="adminAuthBar"></div>
@@ -813,7 +683,6 @@ body{
   </div>
 </div>
 
-<script src="firebase-config.js"></script>
 <script src="data.js"></script>
 <script>
 // DATA is loaded from external data.js (auto-generated by sync.sh)
@@ -880,10 +749,6 @@ const GISCUS_CONFIG = {
   theme: 'light_protanopia',
   lang: 'zh-CN',
 };
-const COMMUNITY_QR_POSITION_KEY = 'foodie_community_qr_position';
-let communityQrVisible=false;
-let communityQrBottomVisible=false;
-
 const CAT_EMOJI={}, CAT_LABEL={};
 CATEGORIES.forEach(c=>{ if(c.key!=='all'){CAT_EMOJI[c.key]=c.emoji; CAT_LABEL[c.key]=c.label;} });
 
@@ -1054,34 +919,14 @@ function updateStats(){
   document.getElementById('statPlay').textContent=md.filter(d=>d.region==="中国").length;
   document.getElementById('statTravel').textContent=md.filter(d=>d.region==="海外").length;
 }
-function loadCommunityQrPosition(){
-  try{
-    communityQrBottomVisible=localStorage.getItem(COMMUNITY_QR_POSITION_KEY)==='bottom';
-  }catch(e){
-    communityQrBottomVisible=false;
-  }
-}
-function updateCommunityQrVisibility(){
-  const topNode=document.getElementById('communityQrTop');
-  const bottomNode=document.getElementById('communityQrBottom');
-  if(topNode) topNode.classList.toggle('show',communityQrVisible);
-  if(bottomNode) bottomNode.classList.toggle('show',communityQrBottomVisible);
-}
 window.handleScrollTopAction=function(){
-  if(!communityQrVisible && !communityQrBottomVisible){
-    communityQrVisible=true;
-    try{ localStorage.setItem(COMMUNITY_QR_POSITION_KEY,'bottom'); }catch(e){}
-    updateCommunityQrVisibility();
-  }
   window.scrollTo({top:0,behavior:'smooth'});
 };
 function init(){
   loadState();
-  loadCommunityQrPosition();
   loadDiscussionCountCache();
   loadLikeState();
   updateStats();
-  updateCommunityQrVisibility();
   initFirebaseCommentBridge();
   document.getElementById('recommendBannerTitle').textContent=UI.recommendBannerTitle;
   document.getElementById('recommendBannerDesc').textContent=UI.recommendBannerDesc;

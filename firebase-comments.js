@@ -1,6 +1,7 @@
 const FIREBASE_VERSION = "10.12.2";
 const FIREBASE_CONFIG = window.FOODIE_FIREBASE_CONFIG || null;
 const IS_CONFIGURED = !!(FIREBASE_CONFIG && typeof FIREBASE_CONFIG === "object" && FIREBASE_CONFIG.apiKey);
+const ADMIN_EMAIL_HASHES = ["b2cdca73dbd2cc890e71e71cff0a62d7a77b91f6f8fb71c3882963b3487f9db9"];
 
 const listeners = new Set();
 let auth = null;
@@ -79,14 +80,35 @@ function dispatchReady() {
   window.dispatchEvent(new CustomEvent("foodie-comments-ready"));
 }
 
-function normalizeCommentUser(user) {
+function normalizeCommentUser(user, options = {}) {
   if (!user || user.isAnonymous) return null;
   return {
     uid: user.uid,
     displayName: user.displayName || user.email || "Google 用户",
     email: user.email || "",
     photoURL: user.photoURL || "",
+    isAdmin: !!options.isAdmin,
   };
+}
+
+function bytesToHex(buffer) {
+  return Array.from(new Uint8Array(buffer))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function hashNormalizedEmail(email) {
+  const normalized = String(email || "").trim().toLowerCase();
+  if (!normalized || !globalThis.crypto || !globalThis.crypto.subtle) return "";
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(normalized));
+  return bytesToHex(digest);
+}
+
+async function resolveIsAdmin(user, tokenResult = null) {
+  if (!user || user.isAnonymous) return false;
+  if (tokenResult && tokenResult.claims && tokenResult.claims.admin === true) return true;
+  const emailHash = await hashNormalizedEmail(user.email || "");
+  return !!emailHash && ADMIN_EMAIL_HASHES.includes(emailHash);
 }
 
 function normalizeComment(doc) {
@@ -369,8 +391,7 @@ const api = {
     await ensureReady();
     if (!auth || !auth.currentUser || auth.currentUser.isAnonymous) throw new Error("请先使用 Google 登录");
     const user = auth.currentUser;
-    const email = String(user.email || "").toLowerCase();
-    if (email !== "elinking@gmail.com") throw new Error("当前账号没有编辑权限");
+    if (!(await resolveIsAdmin(user))) throw new Error("当前账号没有编辑权限");
 
     const mode = payload && payload.mode === "sync" ? "sync" : "add";
     const item = normalizePlacePayload(payload && payload.item ? payload.item : {});
@@ -411,8 +432,7 @@ const api = {
     await ensureReady();
     if (!auth || !auth.currentUser || auth.currentUser.isAnonymous) throw new Error("请先使用 Google 登录");
     const user = auth.currentUser;
-    const email = String(user.email || "").toLowerCase();
-    if (email !== "elinking@gmail.com") throw new Error("当前账号没有编辑权限");
+    if (!(await resolveIsAdmin(user))) throw new Error("当前账号没有编辑权限");
 
     const mode = payload && payload.mode === "sync" ? "sync" : "add";
     try {
@@ -468,10 +488,26 @@ async function bootstrap() {
     loginProvider = new authModule.GoogleAuthProvider();
     loginProvider.setCustomParameters({ prompt: "select_account" });
 
-    authModule.onAuthStateChanged(auth, (user) => {
+    authModule.onIdTokenChanged(auth, async (user) => {
+      let tokenResult = null;
+      try {
+        tokenResult = user && !user.isAnonymous && typeof user.getIdTokenResult === "function"
+          ? await user.getIdTokenResult()
+          : null;
+      } catch (error) {
+        console.warn("[foodie-comments] token lookup failed", error);
+      }
+
+      let isAdmin = false;
+      try {
+        isAdmin = await resolveIsAdmin(user, tokenResult);
+      } catch (error) {
+        console.warn("[foodie-comments] admin resolution failed", error);
+      }
+
       setState({
         viewerUid: user ? user.uid : null,
-        user: normalizeCommentUser(user),
+        user: normalizeCommentUser(user, { isAdmin }),
       });
       syncLikesState();
     });

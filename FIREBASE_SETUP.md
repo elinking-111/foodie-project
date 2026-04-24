@@ -66,6 +66,11 @@ Rules in this MVP allow:
 - authenticated anonymous-or-user create/delete for likes
 - admin-only create/update/delete for shared place edits
 
+Admin writes are validated by Firestore rules using either:
+
+- a Firebase custom claim such as `request.auth.token.admin == true`
+- or the repo's configured owner email hash fallback
+
 If you update `firestore.rules`, deploy them separately:
 
 ```bash

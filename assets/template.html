@@ -740,7 +740,6 @@ const READONLY = false;
 const DISCUSSION_COUNTS_URL = 'discussion-counts.json';
 const DISCUSSION_COUNT_LS_KEY = 'foodie_discussion_counts';
 const LIKE_STATE_LS_KEY = 'foodie_place_likes';
-const ADMIN_EMAILS = ['elinking@gmail.com'];
 const GLOBAL_DISCUSSION_KEY = '__global__';
 const GISCUS_CONFIG = {
   repo: 'elinking-111/foodie-project',
@@ -832,14 +831,8 @@ let firebasePlaceEdits={};
 let firebasePlaceAdds=[];
 let discussionDrafts={};
 
-function normalizeAdminEmail(email){
-  return String(email||'').trim().toLowerCase();
-}
-function isAdminEmail(email){
-  return ADMIN_EMAILS.includes(normalizeAdminEmail(email));
-}
 function isAdminUser(){
-  return !!(firebaseCommentState.user && isAdminEmail(firebaseCommentState.user.email));
+  return !!(firebaseCommentState.user && firebaseCommentState.user.isAdmin);
 }
 function canManagePlaces(){
   return useFirebaseComments() && isAdminUser();

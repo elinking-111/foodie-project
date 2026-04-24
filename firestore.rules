@@ -2,10 +2,18 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function ownerEmailMatches() {
+      return request.auth.token.email is string
+        && hashing.sha256(request.auth.token.email.lower().toUtf8()).toHexString()
+          == 'b2cdca73dbd2cc890e71e71cff0a62d7a77b91f6f8fb71c3882963b3487f9db9';
+    }
+
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email is string
-        && request.auth.token.email == 'elinking@gmail.com';
+        && (
+          (request.auth.token.admin is bool && request.auth.token.admin == true)
+          || ownerEmailMatches()
+        );
     }
 
     match /comments/{commentId} {

@@ -347,6 +347,27 @@ const api = {
       setState({ postPending: false });
     }
   },
+  async deleteComment(commentId) {
+    await ensureReady();
+    if (!auth || !auth.currentUser || auth.currentUser.isAnonymous) throw new Error("请先使用 Google 登录");
+
+    const normalizedCommentId = String(commentId || "").trim();
+    if (!normalizedCommentId) throw new Error("评论标识无效");
+
+    const user = auth.currentUser;
+    const comment = (state.comments || []).find((entry) => entry.id === normalizedCommentId);
+    const ownsComment = !!(comment && comment.authorUid === user.uid);
+    const isAdmin = await resolveIsAdmin(user);
+    if (!ownsComment && !isAdmin) throw new Error("当前账号没有删除评论权限");
+
+    try {
+      await firestoreModuleRef.deleteDoc(firestoreModuleRef.doc(db, "comments", normalizedCommentId));
+    } catch (error) {
+      const friendly = userFacingFirestoreError(error, "删除评论失败，请稍后再试");
+      setState({ error: friendly.message });
+      throw friendly;
+    }
+  },
   async toggleLike(threadKey) {
     await ensureReady();
     const normalizedThreadKey = String(threadKey || "");

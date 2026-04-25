@@ -26,7 +26,12 @@ service cloud.firestore {
         && request.resource.data.body.size() > 0
         && request.resource.data.body.size() <= 2000
         && request.resource.data.authorUid == request.auth.uid;
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if request.auth != null
+        && (
+          resource.data.authorUid == request.auth.uid
+          || isAdmin()
+        );
     }
 
     match /likes/{likeId} {

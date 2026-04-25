@@ -441,6 +441,12 @@ body{
 .admin-auth-btn:hover{
   background:rgba(42,31,26,0.12);transform:translateY(-1px);
 }
+.admin-auth-btn.primary{
+  background:var(--dark);color:#FFF;
+}
+.admin-auth-btn.primary:hover{
+  background:#4A3A2F;
+}
 
 /* Scroll to top */
 .scroll-top{
@@ -874,7 +880,7 @@ function renderAdminAuthBar(){
     return;
   }
   if(canManagePlaces()){
-    bar.innerHTML=`<span class="admin-auth-note">管理员已登录：${esc(firebaseCommentState.user.email||'')}</span><button class="admin-auth-btn" onclick="logoutDiscussion()">退出</button>`;
+    bar.innerHTML=`<span class="admin-auth-note">管理员已登录：${esc(firebaseCommentState.user.email||'')}</span><button class="admin-auth-btn primary" onclick="openModal()">直接添加卡片</button><button class="admin-auth-btn" onclick="logoutDiscussion()">退出</button>`;
     return;
   }
   if(firebaseCommentState.user){

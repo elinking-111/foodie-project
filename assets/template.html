@@ -323,32 +323,45 @@ body::before{
 .card-discussion-actions{
   display:flex;align-items:center;gap:8px;margin-top:16px;
   flex-wrap:wrap;
-  padding:8px;
+  padding:7px;
   border-radius:22px;
-  background:linear-gradient(180deg,rgba(255,244,232,0.94) 0%,rgba(255,237,223,0.9) 100%);
-  border:1px solid rgba(255,255,255,0.8);
+  background:linear-gradient(180deg,rgba(255,247,238,0.88) 0%,rgba(255,241,228,0.72) 100%);
+  border:1px solid rgba(255,255,255,0.58);
 }
 .card-like-btn{
-  appearance:none;border:none;border-radius:14px;
-  padding:8px 10px 8px 12px;font-size:12px;font-weight:700;font-family:inherit;
-  background:transparent;color:#55645C;cursor:pointer;transition:all 0.22s ease;
+  appearance:none;border:none;border-radius:16px;
+  padding:8px 10px 8px 9px;font-size:12px;font-weight:800;font-family:inherit;
+  background:rgba(255,255,255,0.82);color:#4F6B5D;cursor:pointer;transition:all 0.22s ease;
   display:inline-flex;align-items:center;gap:10px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.9),0 10px 18px rgba(79,170,129,0.08);
 }
 .card-like-btn:hover{
-  transform:translateY(-1px);
-  background:rgba(91,123,106,0.08);
+  transform:translateY(-2px);
+  background:#FFF;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.94),0 14px 22px rgba(79,170,129,0.14);
+}
+.card-like-btn:active{
+  transform:translateY(0) scale(0.98);
 }
 .card-like-btn.active{
-  background:rgba(114,190,151,0.14);
-  color:#42936C;
+  background:linear-gradient(135deg,#EAFBF2 0%,#D6F3E4 100%);
+  color:#317D59;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.9),0 12px 20px rgba(79,170,129,0.16);
 }
 .like-btn-label{
   display:inline-flex;align-items:center;gap:6px;
 }
+.like-mark{
+  min-width:24px;height:24px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#8CDEB6 0%,#4FAA81 100%);
+  color:#FFF;font-size:11px;font-weight:900;letter-spacing:0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.38),0 7px 12px rgba(79,170,129,0.22);
+}
 .like-count-badge{
   min-width:24px;height:24px;padding:0 8px;border-radius:999px;
   display:inline-flex;align-items:center;justify-content:center;
-  background:rgba(91,123,106,0.12);color:var(--sage);font-size:11px;font-weight:700;
+  background:rgba(91,123,106,0.10);color:var(--sage);font-size:11px;font-weight:800;
 }
 .card-like-btn.active .like-count-badge{
   background:var(--sage);color:#FFF;
@@ -370,6 +383,13 @@ body::before{
 .comment-btn-label{
   display:inline-flex;align-items:center;gap:6px;
 }
+.comment-mark{
+  min-width:24px;height:24px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(196,87,58,0.12);color:#A55437;font-size:11px;font-weight:900;
+}
+.comment-mark::before{content:'聊'}
+.card-comment-btn.active .comment-mark{background:rgba(255,255,255,0.18);color:#FFF}
 .comment-count-badge{
   min-width:24px;height:24px;padding:0 8px;border-radius:999px;
   display:inline-flex;align-items:center;justify-content:center;
@@ -502,36 +522,39 @@ body::before{
 }
 .recommend-banner-inner{
   background:
-    radial-gradient(circle at top right,rgba(255,255,255,0.54),transparent 28%),
-    linear-gradient(135deg,#FF9C6B 0%,#FF7A45 50%,#F05A28 100%);
-  border:none;border-radius:30px;padding:24px 24px;
+    radial-gradient(circle at top right,rgba(255,255,255,0.76),transparent 30%),
+    linear-gradient(135deg,rgba(255,246,235,0.98) 0%,rgba(255,231,209,0.96) 100%);
+  border:1px solid rgba(255,255,255,0.86);border-radius:30px;padding:20px 22px;
   display:flex;align-items:center;justify-content:space-between;gap:18px;
-  box-shadow:0 22px 38px rgba(240,90,40,0.2);
+  box-shadow:var(--inset-highlight),0 18px 30px rgba(191,132,88,0.1);
 }
 .recommend-banner-copy{min-width:0}
 .recommend-banner-title{
   font-family:'Outfit','Noto Sans SC',sans-serif;
-  font-size:1.2rem;font-weight:800;color:#FFF;margin-bottom:4px;letter-spacing:-0.02em;
+  font-size:1.06rem;font-weight:800;color:var(--dark);margin-bottom:4px;letter-spacing:-0.02em;
 }
 .recommend-banner-desc{
-  display:block;font-size:13px;line-height:1.65;color:rgba(255,255,255,0.78);
+  display:block;font-size:13px;line-height:1.65;color:#9A7861;
 }
 .recommend-banner-btn{
   appearance:none;border:none;border-radius:999px;padding:12px 18px;
-  background:rgba(255,255,255,0.92);
-  color:var(--dark);font:inherit;font-size:13px;font-weight:800;cursor:pointer;
-  display:inline-flex;align-items:center;gap:10px;box-shadow:0 16px 26px rgba(111,49,19,0.14);
+  background:linear-gradient(135deg,var(--primary) 0%,var(--primary-strong) 100%);
+  color:#FFF;font:inherit;font-size:13px;font-weight:900;cursor:pointer;
+  display:inline-flex;align-items:center;gap:10px;box-shadow:0 14px 22px rgba(240,90,40,0.2);
   transition:transform 0.2s ease, box-shadow 0.2s ease;
   white-space:nowrap;
 }
 .recommend-banner-btn:hover{
-  transform:translateY(-1px);box-shadow:0 18px 28px rgba(111,49,19,0.18);
+  transform:translateY(-2px);box-shadow:0 18px 28px rgba(240,90,40,0.24);
+}
+.recommend-banner-btn:active{
+  transform:translateY(0) scale(0.98);
 }
 .recommend-banner-btn.active{
   background:rgba(64,37,22,0.94);color:#FFF;box-shadow:0 16px 28px rgba(64,37,22,0.2);
 }
 .recommend-banner-meta{
-  padding:5px 9px;border-radius:999px;background:rgba(64,37,22,0.08);
+  padding:5px 9px;border-radius:999px;background:rgba(255,255,255,0.18);
   font-size:11px;font-weight:700;
 }
 .global-discussion-shell{
@@ -686,6 +709,222 @@ body::before{
 }
 .btn-export:hover{background:var(--light-border);color:var(--dark)}
 
+/* Calm visual pass: fewer competing colors, borders, and pill surfaces. */
+body{
+  background-image:linear-gradient(180deg,#FFF8F1 0%,#FFF4EA 48%,#FFF8F1 100%);
+}
+body::before{
+  background:radial-gradient(circle at 18% 8%,rgba(255,255,255,0.74),transparent 22%);
+}
+.hero-shell{
+  background:linear-gradient(135deg,rgba(255,249,242,0.96) 0%,rgba(255,241,229,0.9) 100%);
+  border-color:rgba(255,255,255,0.58);
+  box-shadow:0 18px 42px rgba(126,75,42,0.07);
+}
+.hero-shell::before,.hero-shell::after{opacity:0.36}
+.hero-badge,.hero-chip,.hero-stat,.results-count,.search-wrap input,.filter-btn,.map-toggle-btn{
+  border-color:transparent;
+  box-shadow:0 10px 24px rgba(126,75,42,0.055);
+}
+.hero-chip{
+  background:rgba(255,255,255,0.62);
+  color:#604635;
+}
+.hero-flavors{display:none}
+.hero-stat{
+  background:rgba(255,255,255,0.72);
+  box-shadow:none;
+}
+.hero-stat .num{color:#D9653A}
+.hero-stat .label{color:#9A7D6A}
+.hero-orb{
+  color:#4A3021;
+  box-shadow:0 18px 32px rgba(126,75,42,0.1);
+}
+.hero-orb .orb-sub{opacity:0.7}
+.hero-orb.main{background:linear-gradient(145deg,#F4B37E 0%,#EA8A59 100%)}
+.hero-orb.coffee{background:linear-gradient(145deg,#F5D79B 0%,#E9B866 100%)}
+.hero-orb.guide{background:linear-gradient(145deg,#F0D4B9 0%,#DFAE82 100%)}
+.hero-orb.night{background:linear-gradient(145deg,#E8C7A9 0%,#C99166 100%)}
+.sticky-bar{
+  background:rgba(255,248,241,0.82);
+  box-shadow:none;
+}
+.sticky-bar.stuck{
+  background:rgba(255,248,241,0.94);
+  box-shadow:0 10px 28px rgba(126,75,42,0.06);
+}
+.search-icon{
+  width:16px;height:16px;border:2px solid #9A7861;border-radius:50%;
+  font-size:0;color:transparent;
+}
+.search-icon::after{
+  content:'';position:absolute;width:8px;height:2px;border-radius:999px;
+  background:#9A7861;right:-6px;bottom:-3px;transform:rotate(45deg);
+}
+.search-wrap input{
+  background:rgba(255,255,255,0.76);
+}
+.search-wrap input:focus{
+  border-color:transparent;
+  box-shadow:0 0 0 3px rgba(217,101,58,0.08),0 12px 26px rgba(126,75,42,0.07);
+}
+.filters{margin-top:10px}
+.filter-section{margin-bottom:4px}
+.filter-scroll{gap:6px;padding-bottom:4px}
+.filter-btn{
+  background:rgba(255,255,255,0.62);
+  color:#7D6555;
+}
+.filter-btn .emoji{display:none}
+.filter-btn:hover{
+  background:rgba(255,255,255,0.82);
+  color:var(--dark);
+}
+.filter-btn.active,.status-btn.active-visited,.status-btn.active-unvisited,.map-toggle-btn.active{
+  background:#4A3021;
+  color:#FFF;
+  border-color:transparent;
+  box-shadow:0 10px 20px rgba(74,48,33,0.12);
+}
+.results-count{
+  background:transparent;
+  padding-left:0;
+}
+.results-count span{color:#D9653A}
+.grid{gap:14px}
+.card{
+  background:rgba(255,255,255,0.76);
+  border-color:transparent;
+  box-shadow:0 14px 34px rgba(126,75,42,0.065);
+}
+.card::before{display:none}
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 20px 42px rgba(126,75,42,0.1);
+}
+.card.is-visited{
+  box-shadow:0 14px 34px rgba(126,75,42,0.065);
+}
+.card-desc{
+  margin:8px 0 12px;
+  color:#8D7463;
+  line-height:1.65;
+  -webkit-line-clamp:2;
+}
+.card-emoji,
+.card[data-cat="coffee"] .card-emoji,
+.card[data-cat="restaurant"] .card-emoji,
+.card[data-cat="bar"] .card-emoji,
+.card[data-cat="bakery"] .card-emoji,
+.card[data-cat="culture"] .card-emoji,
+.card[data-cat="explore"] .card-emoji,
+.card[data-cat="leisure"] .card-emoji{
+  background:#FFF1E2;
+  box-shadow:none;
+}
+.foodie-icon,
+.foodie-icon.coffee,
+.foodie-icon.restaurant,
+.foodie-icon.bar,
+.foodie-icon.bakery,
+.foodie-icon.culture,
+.foodie-icon.explore,
+.foodie-icon.leisure{
+  --icon-a:#E9AE72;--icon-b:#B97849;--icon-c:#FFF0DC;--icon-d:#8A5534;
+  filter:none;
+}
+.foodie-icon .shape{box-shadow:inset 0 3px 0 rgba(255,255,255,0.36)}
+.foodie-icon .detail,.foodie-icon .detail::before,.foodie-icon .detail::after{box-shadow:none}
+.card-visited{
+  background:rgba(74,48,33,0.06);
+  color:rgba(74,48,33,0.35);
+}
+.card-visited:hover{background:rgba(74,48,33,0.1);color:#4A3021}
+.card-visited.checked{
+  background:#8DB897;
+  color:#FFF;
+  box-shadow:none;
+}
+.card-recommend{
+  background:rgba(74,48,33,0.06);
+  box-shadow:none;
+}
+.card-recommend.active{
+  background:rgba(217,101,58,0.11);
+  color:#B85B36;
+}
+.tag{
+  background:rgba(74,48,33,0.055);
+  color:#785E4E;
+  font-weight:650;
+}
+.tag-category,.tag-area,.tag-feature{
+  background:rgba(74,48,33,0.055);
+  color:#785E4E;
+}
+.card-discussion-actions{
+  background:transparent;
+  border:none;
+  padding:0;
+}
+.card-like-btn,.card-comment-btn,.comment-switch-btn{
+  background:rgba(74,48,33,0.055);
+  box-shadow:none;
+}
+.card-like-btn:hover,.card-comment-btn:hover,.comment-switch-btn:hover{
+  background:rgba(74,48,33,0.09);
+  box-shadow:none;
+}
+.card-like-btn.active{
+  background:rgba(141,184,151,0.18);
+  color:#4B8060;
+  box-shadow:none;
+}
+.like-mark{
+  background:#8DB897;
+  box-shadow:none;
+}
+.like-count-badge,.comment-count-badge{
+  background:rgba(255,255,255,0.52);
+}
+.card-like-btn.active .like-count-badge{
+  background:#8DB897;
+}
+.card-comment-btn{
+  color:#765844;
+}
+.comment-mark{
+  background:rgba(74,48,33,0.07);
+  color:#765844;
+}
+.comment-count-badge.has-comments{
+  background:rgba(217,101,58,0.11);
+  color:#B85B36;
+}
+.recommend-banner-inner{
+  background:rgba(255,255,255,0.55);
+  border-color:transparent;
+  box-shadow:0 14px 30px rgba(126,75,42,0.055);
+}
+.recommend-banner-desc{color:#9A7D6A}
+.recommend-banner-btn{
+  background:#4A3021;
+  box-shadow:0 10px 20px rgba(74,48,33,0.12);
+}
+.recommend-banner-btn:hover{
+  box-shadow:0 14px 24px rgba(74,48,33,0.16);
+}
+.global-discussion-card,.firebase-discussion-box,.firebase-comment,.firebase-comment-empty,.firebase-comment-loading,.firebase-comment-error{
+  border-color:transparent;
+  box-shadow:none;
+}
+.scroll-top,.fab{
+  background:#4A3021;
+  box-shadow:0 14px 24px rgba(74,48,33,0.14);
+}
+.section-divider::after{background:#D9653A;opacity:0.28}
+
 @media(max-width:480px){
   .hero{padding:20px 16px 20px}
   .hero-shell{padding:22px;grid-template-columns:1fr;border-radius:26px}
@@ -733,10 +972,10 @@ body::before{
     </div>
     <div class="hero-visual" aria-hidden="true">
       <div class="hero-orbs">
-        <div class="hero-orb guide"><span class="foodie-icon explore"><i class="shape"></i><i class="detail"></i></span><div><span class="orb-label">City Notes</span><span class="orb-sub">Keep the best spots</span></div></div>
-        <div class="hero-orb main"><span class="foodie-icon restaurant"><i class="shape"></i><i class="detail"></i></span><div><span class="orb-label">Foodie Picks</span><span class="orb-sub">Warm, bright, shareable</span></div></div>
-        <div class="hero-orb coffee"><span class="foodie-icon coffee"><i class="shape"></i><i class="detail"></i></span><div><span class="orb-label">Coffee Run</span><span class="orb-sub">Cafe hopping list</span></div></div>
-        <div class="hero-orb night"><span class="foodie-icon bar"><i class="shape"></i><i class="detail"></i></span><div><span class="orb-label">After Dark</span><span class="orb-sub">Bar and late bites</span></div></div>
+        <div class="hero-orb guide"><span class="foodie-icon explore"><i class="shape"></i><i class="detail"></i></span><div><span class="orb-label">想逛</span><span class="orb-sub">城市灵感随手存</span></div></div>
+        <div class="hero-orb main"><span class="foodie-icon restaurant"><i class="shape"></i><i class="detail"></i></span><div><span class="orb-label">想吃</span><span class="orb-sub">私藏馆子慢慢攒</span></div></div>
+        <div class="hero-orb coffee"><span class="foodie-icon coffee"><i class="shape"></i><i class="detail"></i></span><div><span class="orb-label">想喝</span><span class="orb-sub">咖啡酒吧都收好</span></div></div>
+        <div class="hero-orb night"><span class="foodie-icon bar"><i class="shape"></i><i class="detail"></i></span><div><span class="orb-label">想走</span><span class="orb-sub">旅行清单不丢失</span></div></div>
       </div>
     </div>
   </div>
@@ -1274,13 +1513,13 @@ function render(){
     html+=`<div class="card-name">${esc(d.name)}</div>`;
     if(d.nameEn) html+=`<div class="card-name-en">${esc(d.nameEn)}</div>`;
     html+='</div></div>';
+    if(d.desc && d.desc!==d.area) html+=`<div class="card-desc">${esc(d.desc)}</div>`;
     // Tags
     html+='<div class="card-tags">';
     html+=`<span class="tag tag-category">${catLabel}</span>`;
     if(activeRegion==='all') html+=`<span class="tag tag-area">${esc(d.region)}</span>`;
     if(d.area && d.area!==OTHER_LABEL) html+=`<span class="tag tag-area">${esc(d.area)}</span>`;
-    if(d.desc && d.desc!==d.area) html+=`<span class="tag tag-feature">${esc(d.desc)}</span>`;
-    (d.tags||[]).forEach(t=>{ html+=`<span class="tag tag-feature">${esc(t)}</span>`; });
+    (d.tags||[]).slice(0,2).forEach(t=>{ html+=`<span class="tag tag-feature">${esc(t)}</span>`; });
     html+='</div>';
     const discussionTerm=getDiscussionTerm(d);
     const discussionOpen=activeDiscussionTerm===discussionTerm;
@@ -1289,8 +1528,8 @@ function render(){
     const liked=hasLiked(discussionTerm);
     const likePending=useFirebaseComments() && isLikePending(discussionTerm);
     html+='<div class="card-discussion-actions">';
-    html+=`<button class="card-like-btn${liked?' active':''}" data-discussion-term="${esc(discussionTerm)}" onclick="toggleThumb(${idx})" aria-pressed="${liked?'true':'false'}" ${likePending?'disabled':''}><span class="like-btn-label">&#128077; ${likePending?'处理中...':liked?UI.likeActionActive:UI.likeAction}</span><span class="like-count-badge${likeCount>0?' has-likes':''}">${likeCount}</span></button>`;
-    html+=`<button class="card-comment-btn${discussionOpen?' active':''}" data-discussion-term="${esc(discussionTerm)}" onclick="toggleDiscussion(${idx})"><span class="comment-btn-label">&#x1F4AC; ${discussionOpen?UI.commentClose:UI.commentOpen}</span><span class="comment-count-badge${discussionCount>0?' has-comments':''}">${discussionCount}</span></button>`;
+    html+=`<button class="card-like-btn${liked?' active':''}" data-discussion-term="${esc(discussionTerm)}" onclick="toggleThumb(${idx})" aria-pressed="${liked?'true':'false'}" ${likePending?'disabled':''}><span class="like-btn-label"><span class="like-mark" aria-hidden="true">赞</span>${likePending?'处理中...':liked?UI.likeActionActive:UI.likeAction}</span><span class="like-count-badge${likeCount>0?' has-likes':''}">${likeCount}</span></button>`;
+    html+=`<button class="card-comment-btn${discussionOpen?' active':''}" data-discussion-term="${esc(discussionTerm)}" onclick="toggleDiscussion(${idx})"><span class="comment-btn-label"><span class="comment-mark" aria-hidden="true"></span>${discussionOpen?UI.commentClose:UI.commentOpen}</span><span class="comment-count-badge${discussionCount>0?' has-comments':''}">${discussionCount}</span></button>`;
     html+='</div>';
     if(discussionOpen){
       html+='<div class="card-discussion">';
@@ -1490,7 +1729,7 @@ function updateLikeButtonElement(btn,term){
     btn.classList.toggle('active',liked);
     btn.setAttribute('aria-pressed',liked?'true':'false');
     btn.disabled=!!pending;
-    if(label) label.innerHTML=`&#128077; ${pending?'处理中...':liked?UI.likeActionActive:UI.likeAction}`;
+    if(label) label.innerHTML=`<span class="like-mark" aria-hidden="true">赞</span>${pending?'处理中...':liked?UI.likeActionActive:UI.likeAction}`;
     if(badge){
       badge.textContent=String(count);
       badge.classList.toggle('has-likes',count>0);
